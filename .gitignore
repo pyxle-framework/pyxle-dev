@@ -1,0 +1,33 @@
+# Node
+node_modules/
+
+# Pyxle build artifacts
+.pyxle-build/
+dist/
+
+# Python bytecode
+__pycache__/
+*.py[codz]
+
+# Coverage
+.coverage
+
+# Database files (runtime)
+data/*.db-shm
+data/*.db-wal
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example

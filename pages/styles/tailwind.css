@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    code, pre {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    ::selection {
+        background: rgba(52, 211, 153, 0.3);
+        color: white;
+    }
+
+    html.light ::selection {
+        background: rgba(16, 185, 129, 0.3);
+        color: #18181b;
+    }
+
+    /* Light mode overrides */
+    html.light body {
+        background: #ffffff;
+        color: #18181b;
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+}
