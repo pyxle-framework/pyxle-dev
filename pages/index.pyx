@@ -6,7 +6,7 @@ HEAD = [
     '<title>Pyxle - Python-First Full-Stack Framework</title>',
     '<meta name="description" content="Build like Next.js without leaving Python. Colocate server loaders and React components in .pyx files." />',
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    '<link rel="icon" href="/favicon.ico" />',
+    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
@@ -840,7 +840,7 @@ function HowItWorks() {
 /* ── get started ──────────────────────────────────────────── */
 
 const INSTALL_STEPS = [
-    { label: "Install Pyxle", cmd: "pip install git+https://github.com/shivamsn97/pyxle.git" },
+    { label: "Install Pyxle", cmd: "pip install pyxle-framework" },
     { label: "Create a project", cmd: "pyxle init my-app && cd my-app" },
     { label: "Install dependencies", cmd: "pyxle install" },
     { label: "Start building", cmd: "pyxle dev" },

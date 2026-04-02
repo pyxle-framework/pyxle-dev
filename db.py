@@ -82,3 +82,13 @@ def subscriber_count(*, db_path: Path | None = None) -> int:
     with _connect(db_path) as conn:
         row = conn.execute("SELECT COUNT(*) FROM subscribers").fetchone()
     return row[0] if row else 0
+
+
+def get_all_subscribers(*, db_path: Path | None = None) -> list[dict]:
+    """Return all subscribers ordered by most recent first."""
+    with _connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT id, email, subscribed_at FROM subscribers ORDER BY subscribed_at DESC"
+        ).fetchall()
+    return [dict(row) for row in rows]
