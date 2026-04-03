@@ -1,0 +1,12 @@
+{
+  "name": "benchmark-static-file",
+  "version": "1.0.0",
+  "description": "Static JSON file for benchmarking static file serving performance",
+  "data": [
+    {"id": 1, "name": "Item 1", "value": 100},
+    {"id": 2, "name": "Item 2", "value": 200},
+    {"id": 3, "name": "Item 3", "value": 300},
+    {"id": 4, "name": "Item 4", "value": 400},
+    {"id": 5, "name": "Item 5", "value": 500}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pyxle-dev",
+      "runtimeExecutable": "/Users/shivam/Personal/pyxle-project/benchmarks/.venv/bin/pyxle",
+      "runtimeArgs": ["dev", "--host", "127.0.0.1", "--port", "8000"],
+      "port": 8000
+    }
+  ]
+}

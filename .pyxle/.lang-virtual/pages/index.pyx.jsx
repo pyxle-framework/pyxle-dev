@@ -1,57 +1,6 @@
-import re as _re
-from pyxle import __version__
-from pyxle.runtime import ActionError
-
-HEAD = [
-    '<title>Pyxle - Python-First Full-Stack Framework</title>',
-    '<meta name="description" content="Build like Next.js without leaving Python. Colocate server loaders and React components in .pyx files." />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
-    '<link rel="preconnect" href="https://fonts.googleapis.com" />',
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
-    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css" />',
-    '<meta property="og:title" content="Pyxle - Python-First Full-Stack Framework" />',
-    '<meta property="og:description" content="Build like Next.js without leaving Python." />',
-    '<script src="/scripts/analytics.js" defer></script>',
-]
-
-_EMAIL_RE = _re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
-
-
-@server
-async def load_home(request):
-    return {
-        "version": __version__,
-    }
-
-
-@action
-async def subscribe_newsletter(request):
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-    from db import add_subscriber
-
-    body = await request.json()
-    email = (body.get("email") or "").strip().lower()
-
-    if not email:
-        raise ActionError("Please enter your email address.", status_code=400)
-
-    if not _EMAIL_RE.match(email):
-        raise ActionError("Please enter a valid email address.", status_code=400)
-
-    if len(email) > 254:
-        raise ActionError("Email address is too long.", status_code=400)
-
-    add_subscriber(email)
-    return {"message": "You're on the list! We'll keep you posted."}
-
-
-# --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
-import { useAction, Link } from 'pyxle/client';
+import { useAction } from 'pyxle/client';
 
 /* ── helpers ──────────────────────────────────────────────── */
 
@@ -221,8 +170,6 @@ function Nav({ version }) {
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Features</a>
                     <a href="#get-started" onClick={(e) => scrollToSection(e, 'get-started')}
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
-                    <Link href="/benchmarks"
-                       className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Benchmarks</Link>
                     <a href="https://docs.pyxle.dev" target="_blank" rel="noreferrer"
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Docs</a>
                     <a
@@ -807,115 +754,6 @@ function Features() {
     );
 }
 
-/* ── performance ─────────────────────────────────────────── */
-
-const PERF_STATS = [
-    { value: "1,100+", unit: "req/s", label: "SSR Throughput", note: "Comparable to Next.js" },
-    { value: "5,000+", unit: "req/s", label: "API Endpoints", note: "Faster than Django & Flask" },
-    { value: "2ms", unit: "p50", label: "Latency", note: "JSON serialization" },
-    { value: "0", unit: "errors", label: "Under Load", note: "100 concurrent connections" },
-];
-
-const PYTHON_COMPARISON = [
-    { name: "Pyxle",   rps: 6235, color: "bg-emerald-500",  pct: 100 },
-    { name: "FastAPI",  rps: 5512, color: "bg-cyan-500",     pct: 88 },
-    { name: "Django",   rps: 2660, color: "bg-yellow-500",   pct: 43 },
-    { name: "Flask",    rps: 2124, color: "bg-purple-500",   pct: 34 },
-];
-
-function Performance() {
-    const { theme } = useTheme();
-    return (
-        <section id="performance" className="relative px-6 py-24">
-            <GradientOrb className="h-[500px] w-[500px] bottom-0 left-0 bg-cyan-600" />
-            <div className="relative z-10 mx-auto max-w-6xl">
-                <div className="text-center mb-16">
-                    <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Performance</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                        Built for production speed
-                    </h2>
-                    <p className={`mx-auto mt-4 max-w-2xl ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                        Full-stack features without the performance tax. Pyxle delivers SSR, file routing, and server actions while outperforming traditional Python frameworks.
-                    </p>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-16">
-                    {PERF_STATS.map((s) => (
-                        <div
-                            key={s.label}
-                            className={`rounded-xl border p-6 text-center transition ${
-                                theme === 'dark'
-                                    ? 'border-white/5 bg-white/[0.02]'
-                                    : 'border-zinc-200 bg-white'
-                            }`}
-                        >
-                            <p className="text-3xl font-bold text-emerald-400">{s.value}<span className="text-lg ml-1 font-medium text-emerald-400/60">{s.unit}</span></p>
-                            <p className="mt-1 text-sm font-semibold">{s.label}</p>
-                            <p className={`mt-1 text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>{s.note}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Python Framework Comparison */}
-                <div className={`rounded-xl border p-6 sm:p-8 ${
-                    theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-white'
-                }`}>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
-                        <div>
-                            <h3 className="text-lg font-semibold">Python Framework Comparison</h3>
-                            <p className={`text-sm ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Average requests/second across all API tests</p>
-                        </div>
-                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
-                            theme === 'dark' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : 'border-emerald-200 bg-emerald-50 text-emerald-600'
-                        }`}>
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                            Pyxle is the fastest full-stack Python framework
-                        </span>
-                    </div>
-                    <div className="space-y-4">
-                        {PYTHON_COMPARISON.map((fw) => (
-                            <div key={fw.name} className="flex items-center gap-4">
-                                <span className={`w-16 text-sm font-medium text-right ${fw.name === 'Pyxle' ? 'text-emerald-400' : theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                                    {fw.name}
-                                </span>
-                                <div className={`flex-1 h-8 rounded-lg overflow-hidden ${theme === 'dark' ? 'bg-white/5' : 'bg-zinc-100'}`}>
-                                    <div
-                                        className={`h-full rounded-lg ${fw.color} flex items-center justify-end pr-3 transition-all duration-700`}
-                                        style={{ width: `${fw.pct}%` }}
-                                    >
-                                        <span className="text-xs font-semibold text-white drop-shadow-sm">{fw.rps.toLocaleString()} req/s</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <p className={`mt-6 text-xs ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                        Benchmarked with autocannon (10 connections, 12s). Apple M3, Python 3.13, Node.js 24. All frameworks run production configs.{' '}
-                        <Link href="/benchmarks" className="text-emerald-400 hover:underline">See full methodology and results</Link>.
-                    </p>
-                </div>
-
-                <div className="mt-8 text-center">
-                    <Link
-                        href="/benchmarks"
-                        className={`inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition ${
-                            theme === 'dark'
-                                ? 'border-white/10 text-white hover:bg-white/5'
-                                : 'border-zinc-300 text-zinc-900 hover:bg-zinc-50'
-                        }`}
-                    >
-                        View detailed benchmarks
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </Link>
-                </div>
-            </div>
-        </section>
-    );
-}
-
 /* ── how it works ─────────────────────────────────────────── */
 
 const STEPS = [
@@ -1101,10 +939,6 @@ function Footer() {
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
                         Docs
                     </a>
-                    <Link href="/benchmarks"
-                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
-                        Benchmarks
-                    </Link>
                     <a href="https://github.com/shivamsn97/pyxle" target="_blank" rel="noreferrer"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
                         GitHub
@@ -1132,7 +966,6 @@ export default function Page({ data }) {
             <Hero />
             <CodeShowcase />
             <Features />
-            <Performance />
             <HowItWorks />
             <GetStarted />
             <Newsletter />
@@ -1140,3 +973,4 @@ export default function Page({ data }) {
         </>
     );
 }
+
