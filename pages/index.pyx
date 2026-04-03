@@ -3,16 +3,16 @@ from pyxle import __version__
 from pyxle.runtime import ActionError
 
 HEAD = [
-    '<title>Pyxle - Python-First Full-Stack Framework</title>',
-    '<meta name="description" content="Build like Next.js without leaving Python. Colocate server loaders and React components in .pyx files." />',
+    '<title>Pyxle - Stop Splitting Backend and Frontend</title>',
+    '<meta name="description" content="Python server logic and React UI in one .pyx file. SSR, file routing, server actions — zero glue code." />',
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
     '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
     '<link rel="stylesheet" href="/styles/tailwind.css" />',
-    '<meta property="og:title" content="Pyxle - Python-First Full-Stack Framework" />',
-    '<meta property="og:description" content="Build like Next.js without leaving Python." />',
+    '<meta property="og:title" content="Pyxle - Stop Splitting Backend and Frontend" />',
+    '<meta property="og:description" content="Python + React in one file. SSR, routing, actions — zero glue." />',
     '<script src="/scripts/analytics.js" defer></script>',
 ]
 
@@ -52,6 +52,59 @@ async def subscribe_newsletter(request):
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
 import { useAction, Link } from 'pyxle/client';
+
+/* ── scroll animation hook ───────────────────────────────── */
+
+function useScrollReveal(options = {}) {
+    const ref = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+    const { threshold = 0.15, once = true } = options;
+
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    if (once) observer.unobserve(el);
+                } else if (!once) {
+                    setIsVisible(false);
+                }
+            },
+            { threshold, rootMargin: '0px 0px -60px 0px' }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [threshold, once]);
+
+    return [ref, isVisible];
+}
+
+function Reveal({ children, className = '', delay = 0, direction = 'up' }) {
+    const [ref, isVisible] = useScrollReveal();
+    const transforms = {
+        up: 'translate3d(0, 48px, 0)',
+        down: 'translate3d(0, -48px, 0)',
+        left: 'translate3d(48px, 0, 0)',
+        right: 'translate3d(-48px, 0, 0)',
+        none: 'translate3d(0, 0, 0)',
+    };
+    return (
+        <div
+            ref={ref}
+            className={className}
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translate3d(0,0,0)' : transforms[direction],
+                transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+                willChange: 'opacity, transform',
+            }}
+        >
+            {children}
+        </div>
+    );
+}
 
 /* ── helpers ──────────────────────────────────────────────── */
 
@@ -401,75 +454,110 @@ function HeroBackground() {
 function Hero() {
     const { theme } = useTheme();
     return (
-        <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-6 pt-24 text-center overflow-hidden">
+        <section className="relative flex min-h-[100vh] flex-col items-center justify-center px-6 pt-20 pb-16 text-center overflow-hidden">
             <HeroBackground />
 
-            <div className="relative z-10 max-w-4xl">
-                <div className={`mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm ${
-                    theme === 'dark'
-                        ? 'border-white/10 bg-white/5 text-zinc-400'
-                        : 'border-zinc-200 bg-zinc-100 text-zinc-600'
-                }`}>
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                    Now in public beta
-                </div>
+            <div className="relative z-10 max-w-5xl">
+                <Reveal>
+                    <div className={`mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm ${
+                        theme === 'dark'
+                            ? 'border-white/10 bg-white/5 text-zinc-400'
+                            : 'border-zinc-200 bg-zinc-100 text-zinc-600'
+                    }`}>
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                        Open Source &middot; MIT Licensed
+                    </div>
+                </Reveal>
 
-                <h1 className="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-7xl">
-                    Build full-stack with{' '}
-                    <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                        Python + React
-                    </span>
-                </h1>
+                <Reveal delay={80}>
+                    <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+                        Stop splitting{' '}
+                        <br className="hidden sm:block" />
+                        <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                            backend and frontend
+                        </span>
+                    </h1>
+                </Reveal>
 
-                <p className={`mx-auto mt-6 max-w-2xl text-base leading-relaxed sm:text-lg md:text-xl ${
-                    theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
-                }`}>
-                    Pyxle colocates server logic and UI in one{' '}
-                    <code className={`rounded px-1.5 py-0.5 text-sm font-mono text-emerald-500 ${
-                        theme === 'dark' ? 'bg-white/5' : 'bg-emerald-50'
-                    }`}>.pyx</code>{' '}
-                    file. Write async loaders in Python, render with React, ship with zero config.
-                </p>
+                <Reveal delay={160}>
+                    <p className={`mx-auto mt-6 max-w-2xl text-base leading-relaxed sm:text-lg md:text-xl ${
+                        theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
+                    }`}>
+                        Python server logic and React UI live in one{' '}
+                        <code className={`rounded px-1.5 py-0.5 text-sm font-mono text-emerald-500 ${
+                            theme === 'dark' ? 'bg-white/5' : 'bg-emerald-50'
+                        }`}>.pyx</code>{' '}
+                        file. SSR, file routing, server actions — zero glue code.
+                    </p>
+                </Reveal>
 
-                <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                    <a
-                        href="#get-started"
-                        onClick={(e) => scrollToSection(e, 'get-started')}
-                        className={`group inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition ${
-                            theme === 'dark'
-                                ? 'bg-white text-black hover:bg-zinc-200'
-                                : 'bg-zinc-900 text-white hover:bg-zinc-700'
-                        }`}
-                    >
-                        Get started
-                        <svg
-                            className="h-4 w-4 transition group-hover:translate-x-0.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2"
+                <Reveal delay={240}>
+                    <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                        <a
+                            href="#get-started"
+                            onClick={(e) => scrollToSection(e, 'get-started')}
+                            className={`group inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold transition shadow-lg ${
+                                theme === 'dark'
+                                    ? 'bg-white text-black hover:bg-zinc-200 shadow-white/10'
+                                    : 'bg-zinc-900 text-white hover:bg-zinc-700 shadow-zinc-900/20'
+                            }`}
                         >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </a>
-                    <a
-                        href="https://github.com/shivamsn97/pyxle"
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition ${
-                            theme === 'dark'
-                                ? 'border-white/10 text-white hover:bg-white/5'
-                                : 'border-zinc-300 text-zinc-900 hover:bg-zinc-50'
-                        }`}
-                    >
-                        View on GitHub
-                    </a>
-                </div>
+                            Get started
+                            <svg className="h-4 w-4 transition group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </a>
+                        <a
+                            href="https://github.com/shivamsn97/pyxle"
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`inline-flex items-center gap-2 rounded-xl border px-8 py-3.5 text-sm font-semibold transition ${
+                                theme === 'dark'
+                                    ? 'border-white/10 text-white hover:bg-white/5'
+                                    : 'border-zinc-300 text-zinc-900 hover:bg-zinc-50'
+                            }`}
+                        >
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                            </svg>
+                            Star on GitHub
+                        </a>
+                    </div>
+                </Reveal>
+
+                {/* Inline mini code preview */}
+                <Reveal delay={350}>
+                    <div className={`mx-auto mt-14 max-w-lg rounded-xl border overflow-hidden text-left shadow-2xl ${
+                        theme === 'dark' ? 'border-white/10 bg-[#111113] shadow-black/40' : 'border-zinc-200 bg-[#1a1a2e] shadow-zinc-400/20'
+                    }`}>
+                        <div className={`flex items-center gap-2 border-b px-4 py-2.5 ${
+                            theme === 'dark' ? 'border-white/5' : 'border-zinc-700/30'
+                        }`}>
+                            <div className="flex gap-1.5">
+                                <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-green-500/80" />
+                            </div>
+                            <span className="text-xs text-zinc-500 font-mono ml-2">pages/index.pyx</span>
+                        </div>
+                        <pre className="p-4 text-[11px] sm:text-xs leading-relaxed font-mono overflow-x-auto">
+                            <code>
+                                <span className="text-purple-400">@server</span>{'\n'}
+                                <span className="text-purple-400">async def</span> <span className="text-blue-400">load</span>(<span className="text-zinc-300">request</span>):{'\n'}
+                                {'    '}<span className="text-purple-400">return</span> {'{'}<span className="text-emerald-300">"user"</span>: <span className="text-purple-400">await</span> db.get_user(request){'}'}
+                                {'\n\n'}
+                                <span className="text-purple-400">export default function</span> <span className="text-cyan-400">Page</span>({'{'} <span className="text-zinc-300">data</span> {'}'}) {'{'}{'\n'}
+                                {'    '}<span className="text-purple-400">return</span> {'<'}<span className="text-red-400">h1</span>{'>'}<span className="text-zinc-300">Hello, {'{'}</span><span className="text-zinc-300">data.user.name</span><span className="text-zinc-300">{'}'}</span>{'</'}<span className="text-red-400">h1</span>{'>'}{'\n'}
+                                {'}'}
+                            </code>
+                        </pre>
+                    </div>
+                </Reveal>
             </div>
 
             <a
-                href="#code"
-                onClick={(e) => scrollToSection(e, 'code')}
+                href="#why-pyxle"
+                onClick={(e) => scrollToSection(e, 'why-pyxle')}
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer"
                 aria-label="Scroll to content"
             >
@@ -477,6 +565,76 @@ function Hero() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
             </a>
+        </section>
+    );
+}
+
+/* ── why pyxle (comparison) ──────────────────────────────── */
+
+const COMPARISONS = [
+    {
+        problem: "Backend + frontend",
+        traditional: "2 repos, REST API glue, separate deploys",
+        pyxle: "One .pyx file per route",
+    },
+    {
+        problem: "Data fetching",
+        traditional: "fetch(), loading states, error handling",
+        pyxle: "@server loader \u2192 data becomes React props",
+    },
+    {
+        problem: "Server mutations",
+        traditional: "API routes + fetch + form handling",
+        pyxle: "@action + useAction() \u2014 one line",
+    },
+    {
+        problem: "Deployment",
+        traditional: "Build frontend, deploy backend, configure CORS",
+        pyxle: "pyxle build && pyxle serve",
+    },
+];
+
+function WhyPyxle() {
+    const { theme } = useTheme();
+    return (
+        <section id="why-pyxle" className="relative px-6 py-24">
+            <div className="mx-auto max-w-5xl">
+                <Reveal>
+                    <div className="text-center mb-14">
+                        <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Why Pyxle</p>
+                        <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                            One file replaces your entire stack
+                        </h2>
+                        <p className={`mx-auto mt-4 max-w-2xl ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                            No more context-switching between Python backend and React frontend.
+                            Pyxle unifies them in a single developer experience.
+                        </p>
+                    </div>
+                </Reveal>
+
+                <div className="space-y-4">
+                    {COMPARISONS.map((c, i) => (
+                        <Reveal key={c.problem} delay={i * 80}>
+                            <div className={`grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr] gap-4 rounded-xl border p-5 ${
+                                theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-white'
+                            }`}>
+                                <div>
+                                    <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Problem</p>
+                                    <p className="text-sm font-semibold">{c.problem}</p>
+                                </div>
+                                <div>
+                                    <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Traditional</p>
+                                    <p className={`text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{c.traditional}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-emerald-400">With Pyxle</p>
+                                    <p className="text-sm font-medium text-emerald-400">{c.pyxle}</p>
+                                </div>
+                            </div>
+                        </Reveal>
+                    ))}
+                </div>
+            </div>
         </section>
     );
 }
@@ -771,35 +929,38 @@ function Features() {
         <section id="features" className="relative px-6 py-24">
             <GradientOrb className="h-[500px] w-[500px] top-0 right-0 bg-emerald-600" />
             <div className="relative z-10 mx-auto max-w-6xl">
-                <div className="text-center mb-16">
-                    <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Features</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                        Everything you need to ship
-                    </h2>
-                    <p className={`mx-auto mt-4 max-w-xl ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                        Pyxle gives you the full stack in one cohesive toolkit. No glue code needed.
-                    </p>
-                </div>
+                <Reveal>
+                    <div className="text-center mb-16">
+                        <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Features</p>
+                        <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                            Everything you need to ship
+                        </h2>
+                        <p className={`mx-auto mt-4 max-w-xl ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                            Pyxle gives you the full stack in one cohesive toolkit. No glue code needed.
+                        </p>
+                    </div>
+                </Reveal>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {FEATURES.map((f) => (
-                        <div
-                            key={f.title}
-                            className={`group rounded-xl border p-6 transition ${
-                                theme === 'dark'
-                                    ? 'border-white/5 bg-white/[0.02] hover:border-emerald-500/20 hover:bg-emerald-500/[0.03]'
-                                    : 'border-zinc-200 bg-white hover:border-emerald-500/30 hover:bg-emerald-50/50'
-                            }`}
-                        >
-                            <div className={`mb-4 inline-flex rounded-lg border p-2.5 text-emerald-400 transition ${
-                                theme === 'dark'
-                                    ? 'border-white/10 bg-white/5 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10'
-                                    : 'border-zinc-200 bg-zinc-50 group-hover:border-emerald-500/30 group-hover:bg-emerald-50'
-                            }`}>
-                                <FeatureIcon d={f.icon} />
+                    {FEATURES.map((f, i) => (
+                        <Reveal key={f.title} delay={i * 70}>
+                            <div
+                                className={`group rounded-xl border p-6 transition h-full ${
+                                    theme === 'dark'
+                                        ? 'border-white/5 bg-white/[0.02] hover:border-emerald-500/20 hover:bg-emerald-500/[0.03]'
+                                        : 'border-zinc-200 bg-white hover:border-emerald-500/30 hover:bg-emerald-50/50'
+                                }`}
+                            >
+                                <div className={`mb-4 inline-flex rounded-lg border p-2.5 text-emerald-400 transition ${
+                                    theme === 'dark'
+                                        ? 'border-white/10 bg-white/5 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10'
+                                        : 'border-zinc-200 bg-zinc-50 group-hover:border-emerald-500/30 group-hover:bg-emerald-50'
+                                }`}>
+                                    <FeatureIcon d={f.icon} />
+                                </div>
+                                <h3 className="text-lg font-semibold">{f.title}</h3>
+                                <p className={`mt-2 text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{f.desc}</p>
                             </div>
-                            <h3 className="text-lg font-semibold">{f.title}</h3>
-                            <p className={`mt-2 text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{f.desc}</p>
-                        </div>
+                        </Reveal>
                     ))}
                 </div>
             </div>
@@ -916,32 +1077,165 @@ function Performance() {
     );
 }
 
-/* ── how it works ─────────────────────────────────────────── */
+/* ── how it works (visual architecture) ──────────────────── */
 
-const STEPS = [
-    { num: "01", title: "Write a .pyx file", desc: "Python server logic on top, React component below. One file per route." },
-    { num: "02", title: "Pyxle compiles it", desc: "The compiler splits your code into a server module (.py) and a client component (.jsx)." },
-    { num: "03", title: "SSR + Hydration", desc: "Starlette runs your loader, Node.js renders React to HTML, then the client hydrates." },
+const ARCH_STEPS = [
+    { label: ".pyx File", desc: "Python + React in one file", icon: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z", color: "text-emerald-400" },
+    { label: "Compiler", desc: "Splits into server + client", icon: "M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l5.653-4.655m3.586-3.586l5.653-4.655a2.548 2.548 0 113.586 3.586l-4.655 5.653M11.42 15.17l3.586-3.586", color: "text-cyan-400" },
+    { label: "Starlette", desc: "Runs your Python loader", icon: "M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z", color: "text-purple-400" },
+    { label: "SSR + Hydrate", desc: "Full HTML, then interactive", icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z", color: "text-yellow-400" },
 ];
 
 function HowItWorks() {
     const { theme } = useTheme();
+    const arrow = (
+        <svg className={`h-5 w-5 shrink-0 ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5" />
+        </svg>
+    );
+    const downArrow = (
+        <svg className={`h-5 w-5 mx-auto ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-300'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7" />
+        </svg>
+    );
+    return (
+        <section className="relative px-6 py-24 overflow-hidden">
+            <GradientOrb className="h-[500px] w-[500px] bottom-0 left-1/2 -translate-x-1/2 bg-purple-600" />
+            <div className="relative z-10 mx-auto max-w-4xl">
+                <Reveal>
+                    <div className="text-center mb-14">
+                        <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Architecture</p>
+                        <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                            How Pyxle works
+                        </h2>
+                        <p className={`mx-auto mt-4 max-w-2xl ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                            Write one file. Pyxle compiles, serves, renders, and hydrates automatically.
+                        </p>
+                    </div>
+                </Reveal>
+
+                <Reveal delay={100}>
+                    {/* Desktop: horizontal flow with arrows */}
+                    <div className="hidden sm:flex items-center justify-center gap-3">
+                        {ARCH_STEPS.map((step, i) => (
+                            <React.Fragment key={step.label}>
+                                <div className={`flex-1 rounded-xl border p-5 text-center ${
+                                    theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-white'
+                                }`}>
+                                    <div className={`mx-auto mb-2 inline-flex rounded-lg border p-2 ${step.color} ${
+                                        theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-zinc-50'
+                                    }`}>
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d={step.icon} />
+                                        </svg>
+                                    </div>
+                                    <p className="text-sm font-semibold">{step.label}</p>
+                                    <p className={`mt-0.5 text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>{step.desc}</p>
+                                </div>
+                                {i < ARCH_STEPS.length - 1 && arrow}
+                            </React.Fragment>
+                        ))}
+                    </div>
+
+                    {/* Mobile: vertical flow with down arrows */}
+                    <div className="flex sm:hidden flex-col items-center gap-2">
+                        {ARCH_STEPS.map((step, i) => (
+                            <React.Fragment key={step.label}>
+                                <div className={`w-full rounded-xl border p-4 text-center ${
+                                    theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-white'
+                                }`}>
+                                    <div className={`mx-auto mb-2 inline-flex rounded-lg border p-2 ${step.color} ${
+                                        theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-zinc-50'
+                                    }`}>
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d={step.icon} />
+                                        </svg>
+                                    </div>
+                                    <p className="text-sm font-semibold">{step.label}</p>
+                                    <p className={`mt-0.5 text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>{step.desc}</p>
+                                </div>
+                                {i < ARCH_STEPS.length - 1 && downArrow}
+                            </React.Fragment>
+                        ))}
+                    </div>
+                </Reveal>
+            </div>
+        </section>
+    );
+}
+
+/* ── built for AI ────────────────────────────────────────── */
+
+const USE_CASES = [
+    {
+        title: "AI Dashboards",
+        desc: "Connect your ML models directly. Load predictions in @server, visualize in React. No API layer needed.",
+        code: "@server\nasync def load(req):\n    predictions = model.predict(data)\n    return {\"results\": predictions}",
+        icon: "M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5",
+    },
+    {
+        title: "Internal Tools",
+        desc: "Admin panels, CRUD apps, data viewers. Build in hours with Python, not days with separate frontend.",
+        code: "@action\nasync def approve(req):\n    body = await req.json()\n    await db.update(body[\"id\"])\n    return {\"ok\": True}",
+        icon: "M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l5.653-4.655m3.586-3.586l5.653-4.655a2.548 2.548 0 113.586 3.586l-4.655 5.653",
+    },
+    {
+        title: "Data Apps",
+        desc: "Pandas, NumPy, scikit-learn — use your entire Python ecosystem. The UI is just React on top.",
+        code: "@server\nasync def load(req):\n    df = pd.read_csv(\"data.csv\")\n    summary = df.describe().to_dict()\n    return {\"stats\": summary}",
+        icon: "M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125",
+    },
+];
+
+function BuiltForAI() {
+    const { theme } = useTheme();
     return (
         <section className="relative px-6 py-24">
-            <div className="mx-auto max-w-6xl">
-                <div className="text-center mb-16">
-                    <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">How it works</p>
-                    <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                        Three steps to production
-                    </h2>
-                </div>
-                <div className="grid gap-8 sm:grid-cols-3">
-                    {STEPS.map((s) => (
-                        <div key={s.num} className="relative">
-                            <span className={`text-6xl font-bold ${theme === 'dark' ? 'text-white/[0.04]' : 'text-zinc-900/[0.06]'}`}>{s.num}</span>
-                            <h3 className="mt-2 text-lg font-semibold">{s.title}</h3>
-                            <p className={`mt-2 text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{s.desc}</p>
-                        </div>
+            <GradientOrb className="h-[500px] w-[500px] top-0 left-0 bg-blue-600" />
+            <div className="relative z-10 mx-auto max-w-6xl">
+                <Reveal>
+                    <div className="text-center mb-14">
+                        <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Use Cases</p>
+                        <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                            Your Python. Your React UI.
+                            <br />
+                            <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">One framework.</span>
+                        </h2>
+                        <p className={`mx-auto mt-4 max-w-2xl ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                            Build AI dashboards, internal tools, and data apps with the Python libraries you already know.
+                        </p>
+                    </div>
+                </Reveal>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                    {USE_CASES.map((uc, i) => (
+                        <Reveal key={uc.title} delay={i * 100}>
+                            <div className={`rounded-xl border p-6 h-full flex flex-col ${
+                                theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-white'
+                            }`}>
+                                <div className={`inline-flex rounded-lg border p-2.5 text-emerald-400 mb-4 self-start ${
+                                    theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-zinc-50'
+                                }`}>
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d={uc.icon} />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-semibold mb-2">{uc.title}</h3>
+                                <p className={`text-sm leading-relaxed mb-4 flex-1 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{uc.desc}</p>
+                                <div className={`rounded-lg border overflow-hidden ${
+                                    theme === 'dark' ? 'border-white/5 bg-[#111113]' : 'border-zinc-200 bg-[#1a1a2e]'
+                                }`}>
+                                    <pre className="p-3 text-[10px] sm:text-xs leading-relaxed font-mono overflow-x-auto">
+                                        <code>{uc.code.split('\n').map((line, li) => {
+                                            const isDecorator = line.startsWith('@');
+                                            const isKeyword = line.trimStart().startsWith('async ') || line.trimStart().startsWith('return ') || line.trimStart().startsWith('await ');
+                                            const cls = isDecorator ? 'text-yellow-400' : isKeyword ? 'text-purple-400' : 'text-zinc-300';
+                                            return <React.Fragment key={li}><span className={cls}>{line}</span>{'\n'}</React.Fragment>;
+                                        })}</code>
+                                    </pre>
+                                </div>
+                            </div>
+                        </Reveal>
                     ))}
                 </div>
             </div>
@@ -1130,10 +1424,12 @@ export default function Page({ data }) {
         <>
             <Nav version={version} />
             <Hero />
+            <WhyPyxle />
             <CodeShowcase />
             <Features />
             <Performance />
             <HowItWorks />
+            <BuiltForAI />
             <GetStarted />
             <Newsletter />
             <Footer />
