@@ -13,7 +13,6 @@ HEAD = [
     '<link rel="stylesheet" href="/styles/tailwind.css" />',
     '<meta property="og:title" content="Pyxle - Stop Splitting Backend and Frontend" />',
     '<meta property="og:description" content="Python + React in one file. SSR, routing, actions — zero glue." />',
-    '<script src="/scripts/analytics.js" defer></script>',
 ]
 
 _EMAIL_RE = _re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
@@ -52,6 +51,8 @@ async def subscribe_newsletter(request):
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
 import { useAction, Link } from 'pyxle/client';
+import { tokenizeBlock, HIGHLIGHT_CSS } from './components/code-highlighter.jsx';
+import { ThemeToggle } from './components/theme-toggle.jsx';
 
 /* ── scroll animation hook ───────────────────────────────── */
 
@@ -75,7 +76,26 @@ function useScrollReveal(options = {}) {
             { threshold, rootMargin: '0px 0px -60px 0px' }
         );
         observer.observe(el);
-        return () => observer.disconnect();
+
+        /* When the tab becomes visible after loading in the background,
+           IntersectionObserver may not have fired yet.  Re-check manually. */
+        function onVisibilityChange() {
+            if (document.visibilityState === 'visible' && el) {
+                const rect = el.getBoundingClientRect();
+                const inView = rect.top < window.innerHeight && rect.bottom > 0;
+                if (inView) {
+                    setIsVisible(true);
+                    if (once) observer.unobserve(el);
+                    document.removeEventListener('visibilitychange', onVisibilityChange);
+                }
+            }
+        }
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
+        return () => {
+            observer.disconnect();
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+        };
     }, [threshold, once]);
 
     return [ref, isVisible];
@@ -153,33 +173,6 @@ function scrollToSection(e, id) {
     }
 }
 
-/* ── theme toggle ─────────────────────────────────────────── */
-
-function ThemeToggle() {
-    const { theme, toggle } = useTheme();
-    return (
-        <button
-            onClick={toggle}
-            className={`rounded-lg border p-2 transition ${
-                theme === 'dark'
-                    ? 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white'
-                    : 'border-zinc-200 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900'
-            }`}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-            {theme === 'dark' ? (
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                </svg>
-            ) : (
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
-            )}
-        </button>
-    );
-}
-
 /* ── mobile menu ──────────────────────────────────────────── */
 
 function MobileMenu() {
@@ -219,9 +212,9 @@ function MobileMenu() {
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Features</a>
                     <a href="#get-started" onClick={(e) => { scrollToSection(e, 'get-started'); setOpen(false); }}
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
-                    <a href="https://docs.pyxle.dev" target="_blank" rel="noreferrer"
-                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Docs</a>
-                    <a href="https://github.com/shivamsn97/pyxle" target="_blank" rel="noreferrer"
+                    <Link href="/docs"
+                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Docs</Link>
+                    <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
                 </div>
             )}
@@ -276,10 +269,10 @@ function Nav({ version }) {
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
                     <Link href="/benchmarks"
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Benchmarks</Link>
-                    <a href="https://docs.pyxle.dev" target="_blank" rel="noreferrer"
-                       className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Docs</a>
+                    <Link href="/docs"
+                       className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Docs</Link>
                     <a
-                        href="https://github.com/shivamsn97/pyxle"
+                        href="https://github.com/pyxle-framework/pyxle"
                         target="_blank"
                         rel="noreferrer"
                         className={`hidden sm:inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition ${
@@ -508,7 +501,7 @@ function Hero() {
                             </svg>
                         </a>
                         <a
-                            href="https://github.com/shivamsn97/pyxle"
+                            href="https://github.com/pyxle-framework/pyxle"
                             target="_blank"
                             rel="noreferrer"
                             className={`inline-flex items-center gap-2 rounded-xl border px-8 py-3.5 text-sm font-semibold transition ${
@@ -679,160 +672,21 @@ export default function Dashboard({ data }) {
 }`;
 
 /* Simple token-based syntax highlighter for .pyx code */
-function HighlightedCode({ code }) {
-    const lines = code.split('\n');
-    let mode = 'python'; /* python or jsx */
-
-    const pyKeywords = new Set(['from', 'import', 'async', 'def', 'await', 'return', 'class', 'if', 'else', 'for', 'in', 'with', 'as', 'try', 'except', 'raise', 'not', 'and', 'or', 'True', 'False', 'None']);
-    const jsKeywords = new Set(['import', 'from', 'export', 'default', 'function', 'const', 'let', 'var', 'return', 'if', 'else', 'for', 'of', 'in', 'new', 'this', 'true', 'false', 'null', 'undefined', 'typeof', 'instanceof']);
-
-    function highlightPython(line) {
-        const parts = [];
-        /* comment */
-        if (line.trimStart().startsWith('#')) {
-            parts.push(<span key="c" className="text-zinc-500 italic">{line}</span>);
-            return parts;
-        }
-        /* decorator */
-        if (line.trimStart().startsWith('@')) {
-            parts.push(<span key="d" className="text-yellow-400">{line}</span>);
-            return parts;
-        }
-        /* tokenize */
-        const tokens = line.split(/(\b|(?=['"{}(),:\[\]])|(?<=['"{}(),:\[\]]))/);
-        let i = 0;
-        let result = '';
-        const flush = (cls) => {
-            if (result) {
-                parts.push(<span key={parts.length} className={cls}>{result}</span>);
-                result = '';
-            }
-        };
-        for (let j = 0; j < line.length;) {
-            /* strings */
-            if (line[j] === "'" || line[j] === '"') {
-                flush("text-zinc-300");
-                const q = line[j];
-                let s = q;
-                j++;
-                while (j < line.length && line[j] !== q) {
-                    if (line[j] === '\\') { s += line[j]; j++; }
-                    s += line[j]; j++;
-                }
-                if (j < line.length) { s += line[j]; j++; }
-                parts.push(<span key={parts.length} className="text-emerald-300">{s}</span>);
-                continue;
-            }
-            /* words */
-            const wordMatch = line.slice(j).match(/^[a-zA-Z_]\w*/);
-            if (wordMatch) {
-                flush("text-zinc-300");
-                const w = wordMatch[0];
-                if (pyKeywords.has(w)) {
-                    parts.push(<span key={parts.length} className="text-purple-400">{w}</span>);
-                } else if (j > 0 && line.slice(0, j).match(/(def|class)\s+$/)) {
-                    parts.push(<span key={parts.length} className="text-blue-400">{w}</span>);
-                } else {
-                    parts.push(<span key={parts.length} className="text-zinc-300">{w}</span>);
-                }
-                j += w.length;
-                continue;
-            }
-            result += line[j];
-            j++;
-        }
-        flush("text-zinc-300");
-        return parts;
-    }
-
-    function highlightJSX(line) {
-        const parts = [];
-        /* JSX tags */
-        const tagPattern = /(<\/?)([\w.]+)([^>]*?)(\/?>)/g;
-        let lastIdx = 0;
-        let match;
-        const raw = line;
-
-        /* inline comment */
-        if (line.trimStart().startsWith('//')) {
-            parts.push(<span key="c" className="text-zinc-500 italic">{line}</span>);
-            return parts;
-        }
-
-        /* simple token walk */
-        for (let j = 0; j < line.length;) {
-            /* strings */
-            if (line[j] === "'" || line[j] === '"' || line[j] === '`') {
-                const q = line[j];
-                let s = q;
-                j++;
-                while (j < line.length && line[j] !== q) {
-                    if (line[j] === '\\') { s += line[j]; j++; }
-                    s += line[j]; j++;
-                }
-                if (j < line.length) { s += line[j]; j++; }
-                parts.push(<span key={parts.length} className="text-emerald-300">{s}</span>);
-                continue;
-            }
-            /* JSX angle brackets and tag names */
-            if (line[j] === '<') {
-                let tag = '<';
-                j++;
-                if (j < line.length && line[j] === '/') { tag += '/'; j++; }
-                parts.push(<span key={parts.length} className="text-zinc-500">{tag}</span>);
-                /* tag name */
-                const nameMatch = line.slice(j).match(/^[\w.]+/);
-                if (nameMatch) {
-                    const isComponent = nameMatch[0][0] === nameMatch[0][0].toUpperCase();
-                    parts.push(<span key={parts.length} className={isComponent ? "text-cyan-400" : "text-red-400"}>{nameMatch[0]}</span>);
-                    j += nameMatch[0].length;
-                }
-                continue;
-            }
-            if (line[j] === '>' || (line[j] === '/' && j + 1 < line.length && line[j + 1] === '>')) {
-                const closing = line[j] === '/' ? '/>' : '>';
-                parts.push(<span key={parts.length} className="text-zinc-500">{closing}</span>);
-                j += closing.length;
-                continue;
-            }
-            /* keywords */
-            const wordMatch = line.slice(j).match(/^[a-zA-Z_$]\w*/);
-            if (wordMatch) {
-                const w = wordMatch[0];
-                if (jsKeywords.has(w)) {
-                    parts.push(<span key={parts.length} className="text-purple-400">{w}</span>);
-                } else if (w === 'className') {
-                    parts.push(<span key={parts.length} className="text-yellow-300">{w}</span>);
-                } else if (j > 0 && line[j - 1] === '<') {
-                    parts.push(<span key={parts.length} className="text-cyan-400">{w}</span>);
-                } else {
-                    parts.push(<span key={parts.length} className="text-zinc-300">{w}</span>);
-                }
-                j += w.length;
-                continue;
-            }
-            /* braces in JSX */
-            if (line[j] === '{' || line[j] === '}') {
-                parts.push(<span key={parts.length} className="text-yellow-400">{line[j]}</span>);
-                j++;
-                continue;
-            }
-            parts.push(<span key={parts.length} className="text-zinc-300">{line[j]}</span>);
-            j++;
-        }
-        return parts;
-    }
-
-    const rendered = lines.map((line, i) => {
-        /* switch mode at the blank line before JS imports */
-        if (mode === 'python' && line.match(/^import React/)) {
-            mode = 'jsx';
-        }
-        const highlighted = mode === 'python' ? highlightPython(line) : highlightJSX(line);
-        return <React.Fragment key={i}>{highlighted}{'\n'}</React.Fragment>;
-    });
-
-    return <>{rendered}</>;
+function HighlightedCode({ code, lang = 'pyx' }) {
+    const tokenizedLines = tokenizeBlock(code, lang);
+    return (
+        <>
+            <style dangerouslySetInnerHTML={{ __html: HIGHLIGHT_CSS }} />
+            {tokenizedLines.map((lineTokens, i) => (
+                <React.Fragment key={i}>
+                    {lineTokens.map((tok, j) => (
+                        <span key={j} className={tok.cls}>{tok.text}</span>
+                    ))}
+                    {'\n'}
+                </React.Fragment>
+            ))}
+        </>
+    );
 }
 
 function CodeShowcase() {
@@ -972,16 +826,16 @@ function Features() {
 
 const PERF_STATS = [
     { value: "1,100+", unit: "req/s", label: "SSR Throughput", note: "Comparable to Next.js" },
-    { value: "5,000+", unit: "req/s", label: "API Endpoints", note: "Faster than Django & Flask" },
+    { value: "20k+", unit: "req/s", label: "POST Handling", note: "1.8x faster than FastAPI" },
     { value: "2ms", unit: "p50", label: "Latency", note: "JSON serialization" },
     { value: "0", unit: "errors", label: "Under Load", note: "100 concurrent connections" },
 ];
 
 const PYTHON_COMPARISON = [
-    { name: "Pyxle",   rps: 6235, color: "bg-emerald-500",  pct: 100 },
-    { name: "FastAPI",  rps: 5512, color: "bg-cyan-500",     pct: 88 },
-    { name: "Django",   rps: 2660, color: "bg-yellow-500",   pct: 43 },
-    { name: "Flask",    rps: 2124, color: "bg-purple-500",   pct: 34 },
+    { name: "FastAPI",  rps: 8360, color: "bg-cyan-500",     pct: 100 },
+    { name: "Pyxle",   rps: 6256, color: "bg-emerald-500",  pct: 75 },
+    { name: "Flask",    rps: 3788, color: "bg-purple-500",   pct: 45 },
+    { name: "Django",   rps: 2787, color: "bg-yellow-500",   pct: 33 },
 ];
 
 function Performance() {
@@ -1031,7 +885,7 @@ function Performance() {
                             theme === 'dark' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : 'border-emerald-200 bg-emerald-50 text-emerald-600'
                         }`}>
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                            Pyxle is the fastest full-stack Python framework
+                            Pyxle is the only Python framework with React SSR
                         </span>
                     </div>
                     <div className="space-y-4">
@@ -1391,19 +1245,23 @@ function Footer() {
                     <span className={`text-sm ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Pyxle Framework</span>
                 </div>
                 <div className="flex items-center gap-6">
-                    <a href="https://docs.pyxle.dev" target="_blank" rel="noreferrer"
+                    <Link href="/docs"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
                         Docs
-                    </a>
+                    </Link>
+                    <Link href="/docs/faq"
+                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
+                        FAQ
+                    </Link>
                     <Link href="/benchmarks"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
                         Benchmarks
                     </Link>
-                    <a href="https://github.com/shivamsn97/pyxle" target="_blank" rel="noreferrer"
+                    <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
                         GitHub
                     </a>
-                    <a href="https://github.com/shivamsn97/pyxle/issues" target="_blank" rel="noreferrer"
+                    <a href="https://github.com/pyxle-framework/pyxle/issues" target="_blank" rel="noreferrer"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
                         Issues
                     </a>

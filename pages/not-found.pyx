@@ -154,7 +154,7 @@ function FloatingParticles() {
 export const slots = {};
 export const createSlots = () => slots;
 
-export default function NotFoundPage() {
+export default function NotFoundPage({ backHref = '/', backLabel = 'Back to home' } = {}) {
     const { theme } = useTheme();
     const [phrase, setPhrase] = useState('');
     const [counter, setCounter] = useState(0);
@@ -202,7 +202,7 @@ export default function NotFoundPage() {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
                     <a
-                        href="/"
+                        href={backHref}
                         className={`group inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition ${
                             theme === 'dark'
                                 ? 'bg-white text-black hover:bg-zinc-200'
@@ -212,10 +212,10 @@ export default function NotFoundPage() {
                         <svg className="h-4 w-4 transition group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                         </svg>
-                        Back to home
+                        {backLabel}
                     </a>
                     <a
-                        href="https://github.com/shivamsn97/pyxle"
+                        href="https://github.com/pyxle-framework/pyxle"
                         target="_blank"
                         rel="noreferrer"
                         className={`inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition ${

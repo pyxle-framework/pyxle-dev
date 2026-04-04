@@ -22,6 +22,7 @@ async def load_benchmarks(request):
 import React, { useState } from 'react';
 import { useTheme } from './layout.jsx';
 import { Link } from 'pyxle/client';
+import { ThemeToggle } from './components/theme-toggle.jsx';
 
 export const slots = {};
 export const createSlots = () => slots;
@@ -39,39 +40,38 @@ const ALL_FRAMEWORKS = [
     ...PYTHON_FRAMEWORKS,
     { key: "express", name: "Express", color: "bg-blue-500", text: "text-blue-400", type: "API framework" },
     { key: "hono", name: "Hono", color: "bg-red-500", text: "text-red-400", type: "Ultralight API" },
-    { key: "nextjs", name: "Next.js", color: "bg-white", text: "text-white", type: "Full-stack (SSR + API)" },
 ];
 
 const TESTS = {
+    form: {
+        name: "Form Submission (POST)",
+        desc: "Parse JSON body, validate fields, return response. Measures request processing pipeline.",
+        data: { pyxle: 20548, fastapi: 11379, django: 3478, flask: 5338, express: 38798, hono: 30027 },
+    },
     json: {
         name: "JSON Serialization",
         desc: "Return a static JSON object. Measures pure framework and serialization overhead.",
-        data: { pyxle: 5016, fastapi: 21165, django: 4134, flask: 5044, express: 39565, hono: 50045, nextjs: 6718 },
-    },
-    db: {
-        name: "Single DB Query",
-        desc: "Read one random row from SQLite. Measures framework + database access overhead.",
-        data: { pyxle: 1395, fastapi: 1795, django: 2562, flask: 2658, express: 34589, hono: 29963, nextjs: 5350 },
-    },
-    queries5: {
-        name: "Multiple Queries (5)",
-        desc: "Read 5 random rows from SQLite. Measures query loop performance.",
-        data: { pyxle: 1373, fastapi: 1632, django: 1973, flask: 2124, express: 22112, hono: 28260, nextjs: 5623 },
-    },
-    queries20: {
-        name: "Multiple Queries (20)",
-        desc: "Read 20 random rows from SQLite. Heavier database workload.",
-        data: { pyxle: 1126, fastapi: 1250, django: 753, flask: 2476, express: 15300, hono: 16130, nextjs: 4974 },
-    },
-    form: {
-        name: "Form Submission (POST)",
-        desc: "Parse JSON body, validate fields, return response. Measures request processing.",
-        data: { pyxle: 23949, fastapi: 15754, django: 3851, flask: 4724, express: 35795, hono: 28552, nextjs: 6475 },
+        data: { pyxle: 5046, fastapi: 15423, django: 3592, flask: 5044, express: 60637, hono: 84853 },
     },
     health: {
         name: "Health Check",
         desc: "Minimal endpoint. Measures raw framework routing overhead.",
-        data: { pyxle: 4158, fastapi: 20968, django: 3936, flask: 5088, express: 40405, hono: 53261, nextjs: 7293 },
+        data: { pyxle: 4770, fastapi: 15237, django: 3506, flask: 5088, express: 49843, hono: 55061 },
+    },
+    db: {
+        name: "Single DB Query",
+        desc: "Read one random row from SQLite. Measures framework + database access overhead.",
+        data: { pyxle: 2696, fastapi: 3290, django: 3054, flask: 2658, express: 50797, hono: 65064 },
+    },
+    queries5: {
+        name: "Multiple Queries (5)",
+        desc: "Read 5 random rows from SQLite. Measures query loop performance.",
+        data: { pyxle: 2428, fastapi: 2802, django: 2225, flask: 2124, express: 36099, hono: 36114 },
+    },
+    queries20: {
+        name: "Multiple Queries (20)",
+        desc: "Read 20 random rows from SQLite. Heavier database workload.",
+        data: { pyxle: 2046, fastapi: 2027, django: 864, flask: 2476, express: 18226, hono: 18318 },
     },
 };
 
@@ -86,7 +86,7 @@ const SSR_COMPARISON = [
 const KEY_TAKEAWAYS = [
     {
         title: "Fastest full-stack Python framework",
-        desc: "Pyxle outperforms Django by 2.3x and Flask by 1.7x on average across all API benchmarks, while offering SSR, file-based routing, and server actions that neither provides.",
+        desc: "Pyxle outperforms Django by 2.2x on average across all API benchmarks, while offering SSR, file-based routing, and server actions that neither Django nor Flask provides.",
         icon: "M13 10V3L4 14h7v7l9-11h-7z",
     },
     {
@@ -100,8 +100,8 @@ const KEY_TAKEAWAYS = [
         icon: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z",
     },
     {
-        title: "POST/form processing outperforms Node.js",
-        desc: "Pyxle's CSRF-protected POST handling reaches 24,000+ req/s, outperforming Hono and competing with Express. Starlette's ASGI layer shines for request body processing.",
+        title: "1.8x faster than FastAPI on POST",
+        desc: "Pyxle handles POST/form processing at 20,000+ req/s \u2014 nearly double FastAPI. Starlette's ASGI layer combined with Pyxle's lean middleware stack shines for request body processing.",
         icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z",
     },
 ];
@@ -118,11 +118,20 @@ function BarChart({ data, frameworks, maxOverride }) {
             {sorted.map((fw) => {
                 const val = data[fw.key] || 0;
                 const pct = maxVal > 0 ? Math.max((val / maxVal) * 100, 2) : 0;
+                const isPyxle = fw.key === 'pyxle';
+                const isApiOnly = fw.type === 'API framework' || fw.type === 'Micro framework' || fw.type === 'Ultralight API';
                 return (
                     <div key={fw.key} className="flex items-center gap-3">
-                        <span className={`w-16 sm:w-20 text-xs sm:text-sm font-medium text-right shrink-0 ${fw.key === 'pyxle' ? 'text-emerald-400 font-semibold' : theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                            {fw.name}
-                        </span>
+                        <div className="w-20 sm:w-28 text-right shrink-0">
+                            <span className={`text-xs sm:text-sm font-medium ${isPyxle ? 'text-emerald-400 font-semibold' : theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                                {fw.name}
+                            </span>
+                            {isApiOnly && (
+                                <span className={`ml-1.5 hidden sm:inline-block text-[9px] px-1 py-px rounded ${
+                                    theme === 'dark' ? 'bg-white/5 text-zinc-600' : 'bg-zinc-100 text-zinc-400'
+                                }`}>API</span>
+                            )}
+                        </div>
                         <div className={`flex-1 h-7 rounded-md overflow-hidden ${theme === 'dark' ? 'bg-white/5' : 'bg-zinc-100'}`}>
                             <div
                                 className={`h-full rounded-md ${fw.color} flex items-center justify-end pr-2 transition-all duration-500`}
@@ -181,8 +190,9 @@ function BenchNav({ version }) {
                 </div>
                 <div className="flex items-center gap-4">
                     <Link href="/" className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Home</Link>
-                    <a href="https://github.com/shivamsn97/pyxle" target="_blank" rel="noreferrer"
+                    <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
+                    <ThemeToggle />
                 </div>
             </div>
         </nav>
@@ -238,7 +248,7 @@ export default function BenchmarksPage({ data }) {
                             All Python frameworks use uvicorn (single worker, ASGI) except Flask (gunicorn, 4 WSGI workers).
                             Node.js frameworks use their default server. Pyxle runs in production mode via <code className="font-mono">pyxle serve</code> with full middleware stack.
                             Database: SQLite with WAL mode, 1,000 pre-seeded rows.{' '}
-                            <a href="https://github.com/shivamsn97/pyxle/tree/main/benchmarks" target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">
+                            <a href="https://github.com/pyxle-framework/benchmarks" target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">
                                 Source code (run it yourself)
                             </a>
                         </p>
@@ -266,13 +276,13 @@ export default function BenchmarksPage({ data }) {
                 </div>
             </section>
 
-            {/* SSR Comparison */}
+            {/* SSR Comparison — first because SSR is Pyxle's core differentiator */}
             <section className="px-6 pb-20">
                 <div className="mx-auto max-w-6xl">
                     <SectionHeading
                         label="SSR Performance"
                         title="Server-Side Rendering: Pyxle vs Next.js"
-                        subtitle="Both frameworks render React components on the server. Pyxle's optimized worker pool with bundle caching delivers throughput comparable to Next.js."
+                        subtitle="Pyxle is the only Python framework that renders React on the server. Its optimized worker pool with bundle caching delivers throughput comparable to Next.js — the industry standard."
                     />
                     <div className={`rounded-xl border overflow-hidden ${theme === 'dark' ? 'border-white/5' : 'border-zinc-200'}`}>
                         <div className="overflow-x-auto">
@@ -315,7 +325,7 @@ export default function BenchmarksPage({ data }) {
                         <SectionHeading
                             label="API Benchmarks"
                             title="Endpoint Performance Comparison"
-                            subtitle="Each framework implements identical API endpoints with the same business logic, database, and response format."
+                            subtitle="Each framework implements identical API endpoints. Pyxle runs its full middleware stack (SSR support, GZip compression, server actions). API-only frameworks run leaner stacks by design."
                         />
                         <div className="flex items-center gap-2 shrink-0">
                             <button
@@ -351,19 +361,20 @@ export default function BenchmarksPage({ data }) {
                         ))}
                     </div>
 
-                    {showAllFrameworks && (
-                        <div className={`mt-6 rounded-xl border p-5 ${theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-zinc-50'}`}>
-                            <h4 className="text-sm font-semibold mb-2">Understanding the Node.js advantage</h4>
-                            <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                                Node.js frameworks (Express, Hono) show higher raw throughput on pure I/O benchmarks.
-                                This is an inherent runtime advantage: Node.js's V8 engine and single-threaded event loop are
-                                optimized for high-throughput HTTP serving, and <code className={`font-mono text-xs rounded px-1 py-0.5 ${theme === 'dark' ? 'bg-white/5' : 'bg-zinc-200'}`}>better-sqlite3</code> is
-                                a native C++ addon significantly faster than Python's sqlite3 module.
-                                Pyxle's value proposition is bringing the Python ecosystem's strengths (data science, ML, existing backend code)
-                                into a full-stack framework with competitive performance.
-                            </p>
-                        </div>
-                    )}
+                    {/* Context notes */}
+                    <div className={`mt-6 rounded-xl border p-5 ${theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-zinc-50'}`}>
+                        <h4 className="text-sm font-semibold mb-2">Reading these results</h4>
+                        <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                            Pyxle is a <strong>full-stack framework</strong> — every request passes through its SSR-ready middleware stack, GZip compression, and server action routing,
+                            even on API-only endpoints. Lightweight API frameworks like FastAPI and Flask skip that overhead entirely.
+                            {showAllFrameworks ? (
+                                <> Node.js frameworks (Express, Hono) additionally benefit from V8's optimized HTTP pipeline
+                                and native C++ database bindings (<code className={`font-mono text-xs rounded px-1 py-0.5 ${theme === 'dark' ? 'bg-white/5' : 'bg-zinc-200'}`}>better-sqlite3</code>),
+                                making cross-runtime comparisons inherently uneven.</>
+                            ) : null}
+                            {' '}For real-world applications, Pyxle's value is that you get SSR, server actions, and Python's ecosystem in a single framework — at competitive throughput.
+                        </p>
+                    </div>
                 </div>
             </section>
 
@@ -376,7 +387,7 @@ export default function BenchmarksPage({ data }) {
                             All benchmark code is open source. Clone the repo, start the servers, and run the suite on your own hardware.
                         </p>
                         <a
-                            href="https://github.com/shivamsn97/pyxle/tree/main/benchmarks"
+                            href="https://github.com/pyxle-framework/benchmarks"
                             target="_blank"
                             rel="noreferrer"
                             className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition ${
@@ -403,9 +414,9 @@ export default function BenchmarksPage({ data }) {
                     </div>
                     <div className="flex items-center gap-6">
                         <Link href="/" className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Home</Link>
-                        <a href="https://docs.pyxle.dev" target="_blank" rel="noreferrer"
-                           className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Docs</a>
-                        <a href="https://github.com/shivamsn97/pyxle" target="_blank" rel="noreferrer"
+                        <Link href="/docs"
+                           className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Docs</Link>
+                        <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                            className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>GitHub</a>
                     </div>
                 </div>

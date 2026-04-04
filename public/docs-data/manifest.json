@@ -1,0 +1,745 @@
+{
+  "nav": [
+    {
+      "category": "Getting Started",
+      "slug": "getting-started",
+      "items": [
+        {
+          "title": "Installation",
+          "slug": "installation",
+          "path": "getting-started/installation"
+        },
+        {
+          "title": "Quick Start",
+          "slug": "quick-start",
+          "path": "getting-started/quick-start"
+        },
+        {
+          "title": "Project Structure",
+          "slug": "project-structure",
+          "path": "getting-started/project-structure"
+        }
+      ]
+    },
+    {
+      "category": "Core Concepts",
+      "slug": "core-concepts",
+      "items": [
+        {
+          "title": ".pyx Files",
+          "slug": "pyx-files",
+          "path": "core-concepts/pyx-files"
+        },
+        {
+          "title": "Routing",
+          "slug": "routing",
+          "path": "core-concepts/routing"
+        },
+        {
+          "title": "Data Loading",
+          "slug": "data-loading",
+          "path": "core-concepts/data-loading"
+        },
+        {
+          "title": "Server Actions",
+          "slug": "server-actions",
+          "path": "core-concepts/server-actions"
+        },
+        {
+          "title": "Layouts",
+          "slug": "layouts",
+          "path": "core-concepts/layouts"
+        }
+      ]
+    },
+    {
+      "category": "Guides",
+      "slug": "guides",
+      "items": [
+        {
+          "title": "Styling",
+          "slug": "styling",
+          "path": "guides/styling"
+        },
+        {
+          "title": "Head Management",
+          "slug": "head-management",
+          "path": "guides/head-management"
+        },
+        {
+          "title": "API Routes",
+          "slug": "api-routes",
+          "path": "guides/api-routes"
+        },
+        {
+          "title": "Middleware",
+          "slug": "middleware",
+          "path": "guides/middleware"
+        },
+        {
+          "title": "Environment Variables",
+          "slug": "environment-variables",
+          "path": "guides/environment-variables"
+        },
+        {
+          "title": "Error Handling",
+          "slug": "error-handling",
+          "path": "guides/error-handling"
+        },
+        {
+          "title": "Client Components",
+          "slug": "client-components",
+          "path": "guides/client-components"
+        },
+        {
+          "title": "Security",
+          "slug": "security",
+          "path": "guides/security"
+        },
+        {
+          "title": "Deployment",
+          "slug": "deployment",
+          "path": "guides/deployment"
+        }
+      ]
+    },
+    {
+      "category": "Reference",
+      "slug": "reference",
+      "items": [
+        {
+          "title": "CLI Reference",
+          "slug": "cli",
+          "path": "reference/cli"
+        },
+        {
+          "title": "Configuration Reference",
+          "slug": "configuration",
+          "path": "reference/configuration"
+        },
+        {
+          "title": "Runtime API Reference",
+          "slug": "runtime-api",
+          "path": "reference/runtime-api"
+        },
+        {
+          "title": "Client API Reference",
+          "slug": "client-api",
+          "path": "reference/client-api"
+        }
+      ]
+    },
+    {
+      "category": "Advanced",
+      "slug": "advanced",
+      "items": [
+        {
+          "title": "SSR Pipeline",
+          "slug": "ssr-pipeline",
+          "path": "advanced/ssr-pipeline"
+        },
+        {
+          "title": "Compiler Internals",
+          "slug": "compiler-internals",
+          "path": "advanced/compiler-internals"
+        }
+      ]
+    },
+    {
+      "category": "FAQ",
+      "slug": "faq",
+      "items": [
+        {
+          "title": "Frequently Asked Questions",
+          "slug": "faq",
+          "path": "faq"
+        }
+      ]
+    }
+  ],
+  "searchIndex": [
+    {
+      "title": "Installation",
+      "path": "getting-started/installation",
+      "category": "Getting Started",
+      "description": "Pyxle requires:",
+      "searchText": "Installation Prerequisites Pyxle requires: Python 3.10+ (3.12 recommended) Node.js 18+ (for Vite, React, and SSR) npm (ships with Node.js) Verify your setup: Install Pyxle Install Pyxle from PyPI: This installs the CLI and the framework runtime. Confirm it works: Installing in a virtual environment (recommended) What gets installed The package includes: Component Purpose CLI Project scaffolding, dev server, build pipeline and decorators for your files Configuration loading and validation Starlet",
+      "headings": [
+        "Prerequisites",
+        "Install Pyxle",
+        "Installing in a virtual environment (recommended)",
+        "What gets installed",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Quick Start",
+      "path": "getting-started/quick-start",
+      "category": "Getting Started",
+      "description": "Create a working Pyxle app in under 5 minutes.",
+      "searchText": "Quick Start Create a working Pyxle app in under 5 minutes. 1. Scaffold a new project This creates a directory with a complete starter project. 2. Install dependencies This runs both and . You can also run them separately: 3. Build Tailwind CSS In a separate terminal, start the Tailwind watcher: This compiles into and watches for changes. The dev server also autostarts Tailwind if it detects a config file, so this step is optional if you use with the flag (enabled by default). 4. Start the dev se",
+      "headings": [
+        "1. Scaffold a new project",
+        "2. Install dependencies",
+        "3. Build Tailwind CSS",
+        "4. Start the dev server",
+        "What just happened?",
+        "5. Make a change",
+        "6. Check your routes",
+        "7. Validate your project",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Project Structure",
+      "path": "getting-started/project-structure",
+      "category": "Getting Started",
+      "description": "After running `pyxle init my-app`, you get this file tree:",
+      "searchText": "Project Structure After running , you get this file tree: Key directories The pages directory is the heart of your app. Every file here becomes a route, and every file under becomes an API endpoint. See Routing for the full rules. Static files served directly. Anything in is available at the root URL: (generated at runtime) Created automatically when you run or . Contains compiled Python modules, transpiled JSX, and Vite configuration. This directory is gitignored do not edit files here. Key fil",
+      "headings": [
+        "Key directories",
+        "pages/",
+        "public/",
+        ".pyxle-build/ (generated at runtime)",
+        "Key files",
+        "pages/index.pyx",
+        "pages/layout.pyx",
+        "pages/api/pulse.py",
+        "pyxle.config.json",
+        "package.json",
+        "tailwind.config.cjs",
+        "Next steps"
+      ]
+    },
+    {
+      "title": ".pyx Files",
+      "path": "core-concepts/pyx-files",
+      "category": "Core Concepts",
+      "description": "A `.pyx` file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file -- your data fetching and your UI live together.",
+      "searchText": "Files A file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file your data fetching and your UI live together. Anatomy of a file A file has up to three sections: The compiler automatically detects which lines are Python and which are JSX. Python code uses / decorators, imports, and standard Python syntax. Everything else is treated as JSX. The Python section The Python section runs entirely on the server. It can: Impor",
+      "headings": [
+        "Anatomy of a .pyx file",
+        "The Python section",
+        "Rules for the Python section",
+        "The JSX section",
+        "Rules for the JSX section",
+        "The HEAD variable",
+        "A complete example",
+        "JSX-only files",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Routing",
+      "path": "core-concepts/routing",
+      "category": "Core Concepts",
+      "description": "Pyxle uses **file-based routing**. The file structure inside your `pages/` directory determines the URL routes of your application. No router configuration is needed.",
+      "searchText": "Routing Pyxle uses filebased routing. The file structure inside your directory determines the URL routes of your application. No router configuration is needed. Basic routes Every file in becomes a route: File URL The filename is special it maps to the parent directory's path. Dynamic segments Wrap a filename segment in square brackets to create a dynamic route parameter: File URL Pattern Example Access dynamic parameters in your loader via : Parameter name rules Hyphens in parameter names becom",
+      "headings": [
+        "Basic routes",
+        "Dynamic segments",
+        "Parameter name rules",
+        "Catch-all routes",
+        "Optional catch-all routes",
+        "Route groups",
+        "API routes",
+        "Viewing your route table",
+        "Special files",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Data Loading",
+      "path": "core-concepts/data-loading",
+      "category": "Core Concepts",
+      "description": "Pyxle uses `@server` decorated functions to load data on the server before rendering a page. The loader runs on every request, fetches whatever the page needs, and passes the result as props to the Re",
+      "searchText": "Data Loading Pyxle uses decorated functions to load data on the server before rendering a page. The loader runs on every request, fetches whatever the page needs, and passes the result as props to the React component. Basic loader The function: 1. Receives a Starlette [](https://www.starlette.io/requests/) object 2. Must be (enforced at compile time) 3. Must return a JSONserializable 4. The return value is available as in the React component Accessing request data The parameter is a full Starlet",
+      "headings": [
+        "Basic loader",
+        "Accessing request data",
+        "Returning status codes",
+        "Error handling in loaders",
+        "Using external APIs",
+        "Pages without loaders",
+        "How it works",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Server Actions",
+      "path": "core-concepts/server-actions",
+      "category": "Core Concepts",
+      "description": "Server actions let your React components call Python functions on the server. They are the mutation counterpart to `@server` loaders -- loaders read data, actions write data.",
+      "searchText": "Server Actions Server actions let your React components call Python functions on the server. They are the mutation counterpart to loaders loaders read data, actions write data. Defining an action Use the decorator on an async function in your file: The function: Must be Receives a Starlette object Must return a JSONserializable Can only be called via request Multiple actions can exist in the same file alongside a loader. Calling actions from React Using the component The simplest way to call an ",
+      "headings": [
+        "Defining an action",
+        "Calling actions from React",
+        "Using the <Form> component",
+        "Using the useAction hook",
+        "Error handling in actions",
+        "How actions are routed",
+        "CSRF protection",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Layouts",
+      "path": "core-concepts/layouts",
+      "category": "Core Concepts",
+      "description": "Layouts wrap pages in shared UI -- navigation bars, sidebars, footers, and other elements that persist across page navigations.",
+      "searchText": "Layouts Layouts wrap pages in shared UI navigation bars, sidebars, footers, and other elements that persist across page navigations. Creating a layout Add a file to any directory inside . It wraps all pages in that directory and its subdirectories: A layout is a React component that receives : Slots Layouts can export a object and a function for passing additional content from pages: Nesting layouts Layouts nest automatically. If both and exist, a page at is wrapped by both: Inner layouts are re",
+      "headings": [
+        "Creating a layout",
+        "Slots",
+        "Nesting layouts",
+        "Templates",
+        "Layout vs template",
+        "Layouts are JSX-only",
+        "How it works",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Styling",
+      "path": "guides/styling",
+      "category": "Guides",
+      "description": "Pyxle ships with Tailwind CSS out of the box. You can also use global CSS files, inline styles, or any CSS-in-JS solution that works with React.",
+      "searchText": "Styling Pyxle ships with Tailwind CSS out of the box. You can also use global CSS files, inline styles, or any CSSinJS solution that works with React. Tailwind CSS Every scaffolded project includes Tailwind CSS preconfigured. How it works 1. is the Tailwind input file containing directives 2. Tailwind compiles it to 3. The compiled CSS is linked in your page's variable Development workflow The command autostarts a Tailwind watcher if it detects a Tailwind config file (, , etc.). You can disable ",
+      "headings": [
+        "Tailwind CSS",
+        "How it works",
+        "Development workflow",
+        "Production builds",
+        "Configuration",
+        "Dark mode",
+        "Global stylesheets",
+        "Global scripts",
+        "Linking a stylesheet in HEAD",
+        "CSS-in-JS",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Head Management",
+      "path": "guides/head-management",
+      "category": "Guides",
+      "description": "Pyxle provides three ways to control the document `<head>`: the `HEAD` Python variable, the `<Head>` JSX component, and layout-level head elements. They merge together with automatic deduplication.",
+      "searchText": "Head Management Pyxle provides three ways to control the document : the Python variable, the JSX component, and layoutlevel head elements. They merge together with automatic deduplication. The variable Define a variable in the Python section of your file: Dynamic HEAD For head content that depends on loader data, use a callable: The callable receives the loader's return value as its argument and must return a string or list of strings. XSS safety Dynamic HEAD values are automatically sanitised: ",
+      "headings": [
+        "The HEAD variable",
+        "Dynamic HEAD",
+        "XSS safety",
+        "The <Head> component",
+        "Deduplication",
+        "Precedence order (lowest to highest)",
+        "Deduplication rules",
+        "Example",
+        "Manual deduplication keys",
+        "Default title",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "API Routes",
+      "path": "guides/api-routes",
+      "category": "Guides",
+      "description": "Files under `pages/api/` are API endpoints. They are plain Python files (not `.pyx`) that handle HTTP requests and return JSON or other responses.",
+      "searchText": "API Routes Files under are API endpoints. They are plain Python files (not ) that handle HTTP requests and return JSON or other responses. Basic API route Create : This responds to : HTTP methods Define functions named after HTTP methods: Supported methods: , , , , , . Requests to unsupported methods return . Using HTTPEndpoint classes For more structure, use Starlette's : Dynamic API routes Use the same bracket syntax as page routes: Reading request bodies Error responses Return appropriate HTT",
+      "headings": [
+        "Basic API route",
+        "HTTP methods",
+        "Using HTTPEndpoint classes",
+        "Dynamic API routes",
+        "Reading request bodies",
+        "Error responses",
+        "API routes vs server actions",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Middleware",
+      "path": "guides/middleware",
+      "category": "Guides",
+      "description": "Pyxle supports two levels of middleware: **application-level middleware** that wraps every request, and **route-level hooks** that run only for specific route types.",
+      "searchText": "Middleware Pyxle supports two levels of middleware: applicationlevel middleware that wraps every request, and routelevel hooks that run only for specific route types. Applicationlevel middleware Add Starlettecompatible middleware classes to your config: Each entry is a string in format. The class must be a standard Starlette middleware or subclass. Writing a middleware Middleware is applied in the order listed in config. The first middleware in the list is the outermost wrapper. Routelevel hooks",
+      "headings": [
+        "Application-level middleware",
+        "Writing a middleware",
+        "Route-level hooks",
+        "Writing a route hook (function style)",
+        "Writing a route hook (class style)",
+        "RouteContext",
+        "Built-in hooks",
+        "Middleware execution order",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Environment Variables",
+      "path": "guides/environment-variables",
+      "category": "Guides",
+      "description": "Pyxle loads environment variables from `.env` files and supports special prefixes for configuration overrides and client-side injection.",
+      "searchText": "Environment Variables Pyxle loads environment variables from files and supports special prefixes for configuration overrides and clientside injection. files Create files in your project root: Load order Files are loaded in order of increasing precedence. Later files override earlier ones: 1. base defaults 2. or modespecific 3. local overrides (gitignore this) 4. or local mode overrides The mode is when running and when running or . The shell always wins Variables already set in your shell enviro",
+      "headings": [
+        ".env files",
+        "Load order",
+        "The shell always wins",
+        "Syntax",
+        "PYXLE_PUBLIC_ prefix",
+        "PYXLE_ config overrides",
+        "Precedence",
+        "Using environment variables in loaders",
+        ".gitignore recommendations",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Error Handling",
+      "path": "guides/error-handling",
+      "category": "Guides",
+      "description": "Pyxle provides structured error handling through error exceptions, error boundaries, and not-found pages.",
+      "searchText": "Error Handling Pyxle provides structured error handling through error exceptions, error boundaries, and notfound pages. LoaderError Raise from a function to trigger the nearest error boundary: LoaderError parameters Parameter Type Default Description (required) Error message shown in the error boundary HTTP status code for the response Additional context passed to the error boundary ActionError Raise from an function to return a structured error to the client: The client receives . ActionError p",
+      "headings": [
+        "LoaderError",
+        "LoaderError parameters",
+        "ActionError",
+        "ActionError parameters",
+        "Error boundaries (error.pyx)",
+        "Error props",
+        "Boundary resolution",
+        "Not-found pages (not-found.pyx)",
+        "Dev mode error overlay",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Client Components",
+      "path": "guides/client-components",
+      "category": "Guides",
+      "description": "Pyxle provides built-in React components and hooks importable from `pyxle/client`.",
+      "searchText": "Client Components Pyxle provides builtin React components and hooks importable from . Manages document elements. See Head Management for full details. Renders nothing in the DOM. During SSR, its children are extracted and merged into the document head. Loads external scripts with configurable loading strategies: Props Prop Type Default Description (required) Script URL Loading strategy Add attribute Add attribute Called when script loads Called on load failure Loading strategies Strategy When it",
+      "headings": [
+        "<Head>",
+        "<Script>",
+        "Props",
+        "Loading strategies",
+        "<Image>",
+        "Props",
+        "<ClientOnly>",
+        "Props",
+        "<Form>",
+        "useAction",
+        "<Link>",
+        "navigate(path)",
+        "prefetch(path)",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Security",
+      "path": "guides/security",
+      "category": "Guides",
+      "description": "Pyxle includes CSRF protection, CORS support, and HEAD element sanitisation out of the box.",
+      "searchText": "Security Pyxle includes CSRF protection, CORS support, and HEAD element sanitisation out of the box. CSRF protection CSRF (CrossSite Request Forgery) protection is enabled by default using a doublesubmit cookie pattern. How it works 1. Pyxle sets a cookie on every response 2. Statechanging requests (, , , ) must include the cookie value in the header 3. The framework validates that the header matches the cookie using constanttime comparison 4. If they do not match, a response is returned The com",
+      "headings": [
+        "CSRF protection",
+        "How it works",
+        "Configuration",
+        "Disabling CSRF",
+        "Token validation for custom fetch calls",
+        "CORS configuration",
+        "HEAD element sanitisation",
+        "Best practice",
+        "Security headers",
+        "Environment variable safety",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Deployment",
+      "path": "guides/deployment",
+      "category": "Guides",
+      "description": "Deploy a Pyxle application with `pyxle build` to compile assets and `pyxle serve` to run in production.",
+      "searchText": "Deployment Deploy a Pyxle application with to compile assets and to run in production. Build for production This: 1. Compiles all files into Python and JSX modules 2. Runs (which runs for Tailwind, then Vite bundling) 3. Outputs production artifacts to the directory Build options Serve in production This starts a production Starlette server without Vite (static assets are served directly): Serve options Flag Default Description Bind address Port number Directory with production artifacts Skip ru",
+      "headings": [
+        "Build for production",
+        "Build options",
+        "Serve in production",
+        "Serve options",
+        "Build + serve in one step",
+        "Environment configuration",
+        "Reverse proxy setup",
+        "Nginx example",
+        "Caddy example",
+        "Docker",
+        "Health checks",
+        "SSR workers",
+        "Checklist",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "CLI Reference",
+      "path": "reference/cli",
+      "category": "Reference",
+      "description": "The `pyxle` CLI manages Pyxle projects from scaffolding to production.",
+      "searchText": "CLI Reference The CLI manages Pyxle projects from scaffolding to production. Global options Flag Description Print Pyxle version and exit Output format (default: ) / Show debuglevel output / Suppress informational output; show only warnings and errors Create a new Pyxle project. Argument / Flag Description Project directory name (required) / Overwrite existing directory / Template name (default: ) / Run and after scaffolding (default: no) Examples: Install Python and Node.js dependencies. Argume",
+      "headings": [
+        "Global options",
+        "pyxle init",
+        "pyxle install",
+        "pyxle dev",
+        "pyxle build",
+        "pyxle serve",
+        "pyxle check",
+        "pyxle typecheck",
+        "pyxle routes"
+      ]
+    },
+    {
+      "title": "Configuration Reference",
+      "path": "reference/configuration",
+      "category": "Reference",
+      "description": "Pyxle is configured via `pyxle.config.json` in the project root. All fields are optional -- sensible defaults are used when omitted.",
+      "searchText": "Configuration Reference Pyxle is configured via in the project root. All fields are optional sensible defaults are used when omitted. Full schema Directory settings Key Type Default Description Directory containing page routes and API files Directory for static assets served at Directory for compiled build artifacts Server settings Key Type Default Description Starlette server bind address Starlette server port (165535) Key Type Default Description Vite dev server bind address Vite dev server po",
+      "headings": [
+        "Full schema",
+        "Directory settings",
+        "Server settings",
+        "starlette",
+        "vite",
+        "debug",
+        "Middleware",
+        "middleware",
+        "routeMiddleware",
+        "Styling",
+        "styling",
+        "CORS",
+        "CSRF",
+        "Environment variable overrides",
+        "Precedence",
+        "Validation"
+      ]
+    },
+    {
+      "title": "Runtime API Reference",
+      "path": "reference/runtime-api",
+      "category": "Reference",
+      "description": "The `pyxle.runtime` module provides decorators and error classes used in `.pyx` files. These are automatically available in the Python section of every `.pyx` file -- you do not need to import them (t",
+      "searchText": "Runtime API Reference The module provides decorators and error classes used in files. These are automatically available in the Python section of every file you do not need to import them (the compiler injects the import). Marks an async function as a page data loader. Behaviour: Attaches to the function (no wrapping) The function must be (enforced at compile time) Receives a Starlette [](https://www.starlette.io/requests/) object Must return a JSONserializable Can return a tuple to set the HTTP ",
+      "headings": [
+        "@server",
+        "@action",
+        "LoaderError",
+        "ActionError",
+        "HEAD variable",
+        "Explicit imports"
+      ]
+    },
+    {
+      "title": "Client API Reference",
+      "path": "reference/client-api",
+      "category": "Reference",
+      "description": "All client-side components and hooks are importable from `pyxle/client`:",
+      "searchText": "Client API Reference All clientside components and hooks are importable from : Components Manages document elements during serverside rendering. Props: Children only (standard React children). Behaviour: Renders in the DOM During SSR, extracts children markup and registers head elements Elements are merged and deduplicated with the Python variable and layout head blocks Can be used in any component (page, layout, or nested) Loads external scripts with configurable loading strategies. Props: Prop",
+      "headings": [
+        "Components",
+        "<Head>",
+        "<Script>",
+        "<Image>",
+        "<ClientOnly>",
+        "<Form>",
+        "<Link>",
+        "Hooks",
+        "useAction(actionName, options?)",
+        "Functions",
+        "navigate(path)",
+        "prefetch(path)"
+      ]
+    },
+    {
+      "title": "SSR Pipeline",
+      "path": "advanced/ssr-pipeline",
+      "category": "Advanced",
+      "description": "This document explains how Pyxle renders pages on the server. Understanding the SSR pipeline is useful for debugging render issues and optimising performance.",
+      "searchText": "SSR Pipeline This document explains how Pyxle renders pages on the server. Understanding the SSR pipeline is useful for debugging render issues and optimising performance. Overview When a request hits a page route, Pyxle: 1. Resolves the route matches the URL to a file 2. Imports the server module the compiled Python code from the section 3. Runs the loader executes the function with the request 4. Resolves HEAD elements evaluates the variable (static or dynamic) 5. Renders the component runs Re",
+      "headings": [
+        "Overview",
+        "Component rendering",
+        "Subprocess mode (default when workers = 0)",
+        "Worker pool mode (default: 1 worker)",
+        "Head element pipeline",
+        "Document assembly",
+        "Streaming",
+        "Error handling",
+        "Client-side navigation",
+        "Performance tips"
+      ]
+    },
+    {
+      "title": "Compiler Internals",
+      "path": "advanced/compiler-internals",
+      "category": "Advanced",
+      "description": "The Pyxle compiler transforms `.pyx` files into separate Python and JSX artifacts. This document explains how the compilation process works.",
+      "searchText": "Compiler Internals The Pyxle compiler transforms files into separate Python and JSX artifacts. This document explains how the compilation process works. Compilation overview When you run or , the compiler: 1. Scans the directory for files 2. Parses each file to separate Python from JSX 3. Writes serverside Python modules to 4. Writes clientside JSX modules to 5. Generates layout composition wrappers in 6. Creates a Vite configuration at The parser The parser () is a statemachine that classifies ",
+      "headings": [
+        "Compilation overview",
+        "The parser",
+        "Line classification",
+        "What the parser extracts",
+        "Validation",
+        "Code generation",
+        "Server module (.pyxle-build/server/pages/*.py)",
+        "Client module (.pyxle-build/client/pages/*.jsx)",
+        "Composed route module (.pyxle-build/routes/*.jsx)",
+        "Vite configuration",
+        "Incremental compilation",
+        "Build artifacts"
+      ]
+    },
+    {
+      "title": "Frequently Asked Questions",
+      "path": "faq",
+      "category": "FAQ",
+      "description": "Pyxle is a Python-first full-stack web framework. It combines Python server logic with React components in `.pyx` files, providing file-based routing, server-side rendering, and a development experien",
+      "searchText": "Frequently Asked Questions General What is Pyxle? Pyxle is a Pythonfirst fullstack web framework. It combines Python server logic with React components in files, providing filebased routing, serverside rendering, and a development experience inspired by Next.js. How is Pyxle different from Next.js? Next.js uses JavaScript/TypeScript for both server and client code. Pyxle uses Python for server logic (data fetching, mutations, API routes) and React for the UI. If your team prefers Python for back",
+      "headings": [
+        "General",
+        "What is Pyxle?",
+        "How is Pyxle different from Next.js?",
+        "How is Pyxle different from Django or Flask?",
+        "Is Pyxle production-ready?",
+        "What Python version do I need?",
+        "What Node.js version do I need?",
+        ".pyx files",
+        "Can I use TypeScript in .pyx files?",
+        "Can I import Python code in the JSX section?",
+        "Can I use any React library?",
+        "Can I have multiple loaders in one file?",
+        "Routing",
+        "How do I create a 404 page?",
+        "How do I create a catch-all route?",
+        "How do I exclude a folder from routing?",
+        "Data loading",
+        "My loader is slow. Can I cache results?",
+        "Can I access the database from a loader?",
+        "What happens if my loader throws an unhandled exception?",
+        "Styling",
+        "Do I have to use Tailwind CSS?",
+        "How do I add a global CSS reset?",
+        "Deployment",
+        "How do I deploy Pyxle?",
+        "Can I deploy to serverless platforms?",
+        "How do I set environment variables in production?",
+        "Security",
+        "Is CSRF protection enabled by default?",
+        "How do I disable CSRF for webhooks?",
+        "Are my environment variables safe?",
+        "Troubleshooting",
+        "pyxle dev fails with \"npm install required\"",
+        "The page renders without styles",
+        "Hot reload is not working",
+        "SSR fails with \"Unable to load page module\"",
+        "Actions return 403 Forbidden"
+      ]
+    }
+  ],
+  "pages": {
+    "getting-started/installation": {
+      "title": "Installation",
+      "category": "Getting Started"
+    },
+    "getting-started/quick-start": {
+      "title": "Quick Start",
+      "category": "Getting Started"
+    },
+    "getting-started/project-structure": {
+      "title": "Project Structure",
+      "category": "Getting Started"
+    },
+    "core-concepts/pyx-files": {
+      "title": ".pyx Files",
+      "category": "Core Concepts"
+    },
+    "core-concepts/routing": {
+      "title": "Routing",
+      "category": "Core Concepts"
+    },
+    "core-concepts/data-loading": {
+      "title": "Data Loading",
+      "category": "Core Concepts"
+    },
+    "core-concepts/server-actions": {
+      "title": "Server Actions",
+      "category": "Core Concepts"
+    },
+    "core-concepts/layouts": {
+      "title": "Layouts",
+      "category": "Core Concepts"
+    },
+    "guides/styling": {
+      "title": "Styling",
+      "category": "Guides"
+    },
+    "guides/head-management": {
+      "title": "Head Management",
+      "category": "Guides"
+    },
+    "guides/api-routes": {
+      "title": "API Routes",
+      "category": "Guides"
+    },
+    "guides/middleware": {
+      "title": "Middleware",
+      "category": "Guides"
+    },
+    "guides/environment-variables": {
+      "title": "Environment Variables",
+      "category": "Guides"
+    },
+    "guides/error-handling": {
+      "title": "Error Handling",
+      "category": "Guides"
+    },
+    "guides/client-components": {
+      "title": "Client Components",
+      "category": "Guides"
+    },
+    "guides/security": {
+      "title": "Security",
+      "category": "Guides"
+    },
+    "guides/deployment": {
+      "title": "Deployment",
+      "category": "Guides"
+    },
+    "reference/cli": {
+      "title": "CLI Reference",
+      "category": "Reference"
+    },
+    "reference/configuration": {
+      "title": "Configuration Reference",
+      "category": "Reference"
+    },
+    "reference/runtime-api": {
+      "title": "Runtime API Reference",
+      "category": "Reference"
+    },
+    "reference/client-api": {
+      "title": "Client API Reference",
+      "category": "Reference"
+    },
+    "advanced/ssr-pipeline": {
+      "title": "SSR Pipeline",
+      "category": "Advanced"
+    },
+    "advanced/compiler-internals": {
+      "title": "Compiler Internals",
+      "category": "Advanced"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "category": "FAQ"
+    }
+  }
+}

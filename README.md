@@ -1,6 +1,6 @@
 # pyxle.dev
 
-Source code for [pyxle.dev](https://pyxle.dev) — the official Pyxle website, built with [Pyxle](https://github.com/shivamsn97/pyxle).
+Source code for [pyxle.dev](https://pyxle.dev) — the official Pyxle website, built with [Pyxle](https://github.com/pyxle-framework/pyxle).
 
 ## Setup
 

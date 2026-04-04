@@ -1,0 +1,702 @@
+from pyxle import __version__
+import json
+import os
+from pathlib import Path
+
+HEAD = [
+    '<title>Documentation - Pyxle Framework</title>',
+    '<meta name="description" content="Pyxle framework documentation. Learn to build full-stack Python + React apps." />',
+    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
+    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
+    '<link rel="preconnect" href="https://fonts.googleapis.com" />',
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
+    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css" />',
+]
+
+DOCS_DIR = Path(os.getcwd()) / "public" / "docs-data"
+
+_manifest_cache = None
+
+
+def _read_manifest():
+    global _manifest_cache
+    if _manifest_cache is None:
+        manifest_path = DOCS_DIR / "manifest.json"
+        if manifest_path.exists():
+            _manifest_cache = json.loads(manifest_path.read_text())
+    return _manifest_cache
+
+
+@server
+async def load_docs(request):
+    slug = request.path_params.get("slug", "") or "getting-started/installation"
+
+    manifest = _read_manifest()
+    if manifest is None:
+        return {"version": __version__, "slug": slug, "page": None, "nav": []}
+
+    page_path = DOCS_DIR / f"{slug}.json"
+    if not page_path.exists():
+        return {"version": __version__, "slug": slug, "page": None, "nav": manifest["nav"], "notFound": True}
+
+    page = json.loads(page_path.read_text())
+
+    return {"version": __version__, "slug": slug, "page": page, "nav": manifest["nav"]}
+
+
+@action
+async def search_docs(request):
+    body = await request.json()
+    query = (body.get("query") or "").lower().strip()
+    if not query:
+        return {"results": []}
+
+    manifest = _read_manifest()
+    if manifest is None:
+        return {"results": []}
+
+    results = []
+    for entry in manifest["searchIndex"]:
+        title_match = query in entry["title"].lower()
+        heading_match = any(query in h.lower() for h in entry.get("headings", []))
+        text_match = query in entry.get("searchText", "").lower()
+        if not (title_match or heading_match or text_match):
+            continue
+        matching_heading = next((h for h in entry.get("headings", []) if query in h.lower()), None)
+        results.append({"title": entry["title"], "path": entry["path"], "category": entry["category"], "matchingHeading": matching_heading})
+        if len(results) >= 12:
+            break
+
+    return {"results": results}
+
+
+# --- client ---
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTheme } from '../layout.pyx';
+import { Link, navigate, useAction } from 'pyxle/client';
+import { tokenizeBlock, HIGHLIGHT_CSS } from '../components/code-highlighter.jsx';
+import { ThemeToggle } from '../components/theme-toggle.jsx';
+import NotFoundPage from '../not-found.pyx';
+
+export const slots = {};
+export const createSlots = () => slots;
+
+/* ── DocLink — prefetch on hover only, not on viewport ───── */
+/* Setting prefetch={false} disables the IntersectionObserver.           */
+/* Hover-based prefetch still fires via the global anchor hover handler. */
+
+function DocLink(props) {
+    return <Link {...props} prefetch={false} />;
+}
+
+/* ── Search Modal ─────────────────────────────────────────── */
+
+function SearchModal({ onClose }) {
+    const { theme } = useTheme();
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState([]);
+    const [selectedIdx, setSelectedIdx] = useState(0);
+    const [searching, setSearching] = useState(false);
+    const inputRef = useRef(null);
+    const search = useAction('search_docs');
+
+    useEffect(() => { inputRef.current?.focus(); }, []);
+
+    // Debounced server-side search.
+    useEffect(() => {
+        if (!query.trim()) {
+            setResults([]);
+            setSearching(false);
+            return;
+        }
+        setSearching(true);
+        const timeout = setTimeout(async () => {
+            const res = await search({ query: query.trim() });
+            if (res.ok && res.results) {
+                setResults(res.results);
+            }
+            setSearching(false);
+        }, 150);
+        return () => clearTimeout(timeout);
+    }, [query]);
+
+    useEffect(() => { setSelectedIdx(0); }, [results.length]);
+
+    const handleKeyDown = useCallback((e) => {
+        if (e.key === 'Escape') { onClose(); return; }
+        if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIdx(i => Math.min(i + 1, results.length - 1)); }
+        if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedIdx(i => Math.max(i - 1, 0)); }
+        if (e.key === 'Enter' && results[selectedIdx]) {
+            navigate(`/docs/${results[selectedIdx].path}`);
+            onClose();
+        }
+    }, [results, selectedIdx, onClose]);
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]" onClick={onClose}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div
+                className={`relative w-full max-w-xl rounded-xl border shadow-2xl overflow-hidden ${
+                    theme === 'dark' ? 'bg-[#18181b] border-white/10' : 'bg-white border-zinc-200'
+                }`}
+                onClick={e => e.stopPropagation()}
+            >
+                <div className={`flex items-center gap-3 px-4 py-3 border-b ${theme === 'dark' ? 'border-white/5' : 'border-zinc-100'}`}>
+                    <svg className={`h-5 w-5 shrink-0 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`} fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <input
+                        ref={inputRef}
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Search documentation..."
+                        className={`flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-500 ${theme === 'dark' ? 'text-white' : 'text-zinc-900'}`}
+                    />
+                    <kbd className={`rounded px-1.5 py-0.5 text-[10px] font-mono ${theme === 'dark' ? 'bg-white/10 text-zinc-400' : 'bg-zinc-100 text-zinc-500'}`}>Esc</kbd>
+                </div>
+                {results.length > 0 && (
+                    <div className="max-h-80 overflow-y-auto py-2">
+                        {results.map((r, i) => (
+                            <DocLink
+                                key={r.path}
+                                href={`/docs/${r.path}`}
+                                onClick={() => onClose()}
+                                className={`w-full flex items-start gap-3 px-4 py-2.5 text-left transition ${
+                                    i === selectedIdx
+                                        ? theme === 'dark' ? 'bg-white/5' : 'bg-zinc-50'
+                                        : ''
+                                }`}
+                            >
+                                <svg className={`h-4 w-4 mt-0.5 shrink-0 ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                                <div className="min-w-0">
+                                    <p className="text-sm font-medium truncate">{r.title}</p>
+                                    <p className={`text-xs truncate ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                        {r.category}{r.matchingHeading ? ` > ${r.matchingHeading}` : ''}
+                                    </p>
+                                </div>
+                            </DocLink>
+                        ))}
+                    </div>
+                )}
+                {query && results.length === 0 && searching && (
+                    <div className={`px-4 py-8 flex items-center justify-center gap-2 text-sm ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Searching...
+                    </div>
+                )}
+                {query && results.length === 0 && !searching && (
+                    <div className={`px-4 py-8 text-center text-sm ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                        No results for &ldquo;{query}&rdquo;
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+
+function Sidebar({ nav, currentPath }) {
+    const { theme } = useTheme();
+    if (!nav) return null;
+
+    return (
+        <nav className="space-y-6">
+            {nav.map(section => (
+                <div key={section.slug}>
+                    <h3 className={`px-3 text-xs font-semibold uppercase tracking-widest mb-2 ${
+                        theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'
+                    }`}>{section.category}</h3>
+                    <ul className="space-y-0.5">
+                        {section.items.map(item => {
+                            const isActive = currentPath === item.path;
+                            return (
+                                <li key={item.path}>
+                                    <DocLink
+                                        href={`/docs/${item.path}`}
+                                        className={`block rounded-lg px-3 py-1.5 text-sm transition ${
+                                            isActive
+                                                ? 'bg-emerald-500/10 text-emerald-400 font-medium'
+                                                : theme === 'dark'
+                                                    ? 'text-zinc-400 hover:text-white hover:bg-white/5'
+                                                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                                        }`}
+                                    >{item.title}</DocLink>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
+            ))}
+        </nav>
+    );
+}
+
+/* ── Table of Contents ────────────────────────────────────── */
+
+function TableOfContents({ toc }) {
+    const { theme } = useTheme();
+    if (!toc || toc.length === 0) return null;
+
+    return (
+        <nav className="space-y-1">
+            <h4 className={`text-xs font-semibold uppercase tracking-widest mb-3 ${
+                theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'
+            }`}>On this page</h4>
+            {toc.map((item, i) => (
+                <a
+                    key={i}
+                    href={`#${item.slug}`}
+                    className={`block text-[13px] leading-snug py-0.5 transition ${
+                        item.depth === 3 ? 'pl-4' : ''
+                    } ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}
+                >{item.text}</a>
+            ))}
+        </nav>
+    );
+}
+
+/* ── Code Block Enhancement (Copy + Syntax Highlighting) ──── */
+
+function useDocEnhancements(contentRef) {
+    useEffect(() => {
+        if (!contentRef.current) return;
+        const blocks = contentRef.current.querySelectorAll('.code-block');
+        blocks.forEach(block => {
+            // Skip if already processed
+            if (block.dataset.highlighted) return;
+            block.dataset.highlighted = 'true';
+
+            const codeEl = block.querySelector('code');
+            if (!codeEl) return;
+            const rawText = codeEl.textContent || '';
+
+            // Detect language from class or data attribute
+            const langClass = codeEl.className.match(/language-(\w+)/);
+            const dataLang = block.dataset.lang;
+            let lang = langClass?.[1] || dataLang || '';
+            // Map common aliases
+            if (lang === 'py') lang = 'python';
+            if (lang === 'sh') lang = 'bash';
+            if (lang === 'ts') lang = 'typescript';
+
+            // Apply syntax highlighting
+            const tokenizedLines = tokenizeBlock(rawText, lang);
+            const fragment = document.createDocumentFragment();
+            tokenizedLines.forEach((lineTokens, i) => {
+                lineTokens.forEach(tok => {
+                    const span = document.createElement('span');
+                    span.className = tok.cls;
+                    span.textContent = tok.text;
+                    fragment.appendChild(span);
+                });
+                if (i < tokenizedLines.length - 1) {
+                    fragment.appendChild(document.createTextNode('\n'));
+                }
+            });
+            codeEl.textContent = '';
+            codeEl.appendChild(fragment);
+
+            // Add language badge
+            if (lang) {
+                const badge = document.createElement('span');
+                badge.className = 'code-lang-badge';
+                badge.textContent = lang;
+                block.appendChild(badge);
+            }
+
+            // Add copy button
+            const btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'Copy';
+            btn.addEventListener('click', () => {
+                navigator.clipboard.writeText(rawText);
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+            });
+            block.appendChild(btn);
+        });
+
+        // Add anchor links to headings (h2, h3, h4).
+        const headings = contentRef.current.querySelectorAll('h2[id], h3[id], h4[id]');
+        headings.forEach(heading => {
+            if (heading.querySelector('.heading-anchor')) return;
+            heading.style.position = 'relative';
+            heading.style.cursor = 'pointer';
+            const anchor = document.createElement('a');
+            anchor.className = 'heading-anchor';
+            anchor.href = `#${heading.id}`;
+            anchor.setAttribute('aria-label', 'Link to this section');
+            anchor.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+            heading.insertBefore(anchor, heading.firstChild);
+
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const url = window.location.origin + window.location.pathname + '#' + heading.id;
+                navigator.clipboard.writeText(url);
+                heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                window.history.replaceState(null, '', '#' + heading.id);
+                // Brief visual feedback
+                anchor.style.opacity = '1';
+                anchor.style.color = '#34d399';
+                setTimeout(() => { anchor.style.color = ''; anchor.style.opacity = ''; }, 1500);
+            });
+        });
+    });
+}
+
+/* ── Copy Page Dropdown ──────────────────────────────────── */
+
+function CopyPageDropdown({ page }) {
+    const { theme } = useTheme();
+    const [open, setOpen] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        if (!open) return;
+        function handleClickOutside(e) {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpen(false);
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [open]);
+
+    const pageUrl = typeof window !== 'undefined'
+        ? `https://pyxle.dev/docs/${page.path}`
+        : `https://pyxle.dev/docs/${page.path}`;
+
+    const docsBaseUrl = 'https://pyxle.dev/docs';
+
+    const aiPrompt = encodeURIComponent(
+        `Read ${pageUrl} carefully so I can ask questions about it.\n\n` +
+        `Pyxle is a new Python-first full-stack framework, so you likely lack training data on it. ` +
+        `If you need additional context about any Pyxle concept, read the relevant pages at ${docsBaseUrl}.`
+    );
+
+    const copyMarkdown = useCallback(() => {
+        const md = page.markdown || `# ${page.title}\n\nContent not available as Markdown.`;
+        navigator.clipboard.writeText(md);
+        setCopied(true);
+        setOpen(false);
+        setTimeout(() => setCopied(false), 2000);
+    }, [page]);
+
+    const viewMarkdown = useCallback(() => {
+        const md = page.markdown || `# ${page.title}\n\nContent not available as Markdown.`;
+        const blob = new Blob([md], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setOpen(false);
+    }, [page]);
+
+    const btnBase = `inline-flex items-center gap-1.5 text-xs font-medium transition ${
+        theme === 'dark'
+            ? 'border-white/10 text-zinc-400 hover:bg-white/5 hover:text-white'
+            : 'border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'
+    }`;
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <div className={`inline-flex items-center rounded-lg border ${theme === 'dark' ? 'border-white/10' : 'border-zinc-200'}`}>
+                <button onClick={copyMarkdown} className={`${btnBase} px-3 py-1.5 rounded-l-lg`} title="Copy page as Markdown">
+                    {copied ? (
+                        <svg className="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                    ) : (
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+                    )}
+                    <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy page'}</span>
+                </button>
+                <button
+                    onClick={() => setOpen(!open)}
+                    className={`${btnBase} px-1.5 py-1.5 rounded-r-lg border-l ${theme === 'dark' ? 'border-white/10' : 'border-zinc-200'}`}
+                    title="More options"
+                >
+                    <svg className={`h-3.5 w-3.5 transition ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                </button>
+            </div>
+
+            {open && (
+                <div className={`absolute right-0 top-full mt-1.5 w-64 rounded-xl border shadow-xl overflow-hidden z-50 ${
+                    theme === 'dark' ? 'bg-[#18181b] border-white/10' : 'bg-white border-zinc-200'
+                }`}>
+                    <div className="py-1.5">
+                        <button onClick={copyMarkdown} className={`w-full flex items-start gap-3 px-4 py-2.5 text-left transition ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-zinc-50'}`}>
+                            <svg className={`h-4 w-4 mt-0.5 shrink-0 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+                            <div className="min-w-0">
+                                <p className={`text-sm font-medium ${theme === 'dark' ? 'text-zinc-200' : 'text-zinc-700'}`}>Copy page</p>
+                                <p className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Copy this page as Markdown for LLMs</p>
+                            </div>
+                        </button>
+
+                        <button onClick={viewMarkdown} className={`w-full flex items-start gap-3 px-4 py-2.5 text-left transition ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-zinc-50'}`}>
+                            <svg className={`h-4 w-4 mt-0.5 shrink-0 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`} viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm2 4v10h2.5l3-3.75L13.5 17H16V7h-3v5.6L10.5 9 8 12.6V7H5z"/></svg>
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-zinc-200' : 'text-zinc-700'}`}>View as Markdown</p>
+                                    <svg className={`h-3 w-3 ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-300'}`} fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                </div>
+                                <p className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>View this page as plain text</p>
+                            </div>
+                        </button>
+
+                        <div className={`my-1 border-t ${theme === 'dark' ? 'border-white/5' : 'border-zinc-100'}`} />
+
+                        <a href={`https://claude.ai/new?q=${aiPrompt}`} target="_blank" rel="noreferrer" onClick={() => setOpen(false)} className={`w-full flex items-start gap-3 px-4 py-2.5 text-left transition no-underline ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-zinc-50'}`}>
+                            <svg className={`h-4 w-4 mt-0.5 shrink-0 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`} viewBox="0 0 24 24" fill="currentColor"><path d="M4.709 15.955l4.71-10.96a1.257 1.257 0 012.326 0l4.696 10.96c.092.212.15.436.15.672 0 .942-.764 1.706-1.706 1.706a1.71 1.71 0 01-1.573-1.04L12 13.467l-1.312 3.826a1.71 1.71 0 01-1.573 1.04 1.706 1.706 0 01-1.556-2.378zm7.998-4.498L12 9.726l-.707 1.731L12 13.188l.707-1.731z"/></svg>
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-zinc-200' : 'text-zinc-700'}`}>Open in Claude</p>
+                                    <svg className={`h-3 w-3 ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-300'}`} fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                </div>
+                                <p className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Ask questions about this page</p>
+                            </div>
+                        </a>
+
+                        <a href={`https://chatgpt.com/?q=${aiPrompt}`} target="_blank" rel="noreferrer" onClick={() => setOpen(false)} className={`w-full flex items-start gap-3 px-4 py-2.5 text-left transition no-underline ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-zinc-50'}`}>
+                            <svg className={`h-4 w-4 mt-0.5 shrink-0 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`} viewBox="0 0 24 24" fill="currentColor"><path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.052.5a6.046 6.046 0 00-5.788 4.22 6.046 6.046 0 00-4.033 2.929 6.046 6.046 0 00.748 7.101 5.98 5.98 0 00.51 4.911 6.051 6.051 0 006.515 2.9A5.985 5.985 0 0013.2 23.5a6.046 6.046 0 005.787-4.22 6.046 6.046 0 004.033-2.93 6.046 6.046 0 00-.738-6.529zM13.2 21.784a4.5 4.5 0 01-2.895-1.05l.144-.082 4.81-2.78a.78.78 0 00.395-.678v-6.79l2.033 1.174a.072.072 0 01.04.055v5.625a4.52 4.52 0 01-4.527 4.526zm-9.72-4.153a4.495 4.495 0 01-.54-3.025l.144.084 4.81 2.78a.78.78 0 00.79 0l5.87-3.39v2.348a.072.072 0 01-.03.062l-4.86 2.806a4.52 4.52 0 01-6.184-1.665zM2.34 7.896a4.485 4.485 0 012.36-1.974v5.73a.78.78 0 00.39.678l5.87 3.39-2.034 1.174a.072.072 0 01-.068.005L3.998 14.1a4.52 4.52 0 01-1.658-6.204zm16.776 3.905l-5.87-3.39 2.034-1.174a.072.072 0 01.068-.005l4.86 2.806a4.514 4.514 0 01-.7 8.143v-5.702a.78.78 0 00-.392-.678zm2.022-3.04l-.144-.085-4.81-2.78a.78.78 0 00-.79 0l-5.87 3.39V6.94a.072.072 0 01.03-.062l4.86-2.806a4.52 4.52 0 016.724 4.69zm-12.72 4.18L6.385 11.77a.072.072 0 01-.04-.056V6.09a4.52 4.52 0 017.42-3.47l-.143.082-4.81 2.78a.78.78 0 00-.395.678zm1.1-2.38l2.614-1.51 2.614 1.51v3.018l-2.614 1.51-2.614-1.51z"/></svg>
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-zinc-200' : 'text-zinc-700'}`}>Open in ChatGPT</p>
+                                    <svg className={`h-3 w-3 ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-300'}`} fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                                </div>
+                                <p className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Ask questions about this page</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ── Doc Content ──────────────────────────────────────────── */
+
+function DocContent({ page }) {
+    const { theme } = useTheme();
+    const contentRef = useRef(null);
+    useDocEnhancements(contentRef);
+
+    if (!page) return <div className="animate-pulse h-96" />;
+
+    return (
+        <div>
+            {/* Header */}
+            <div className="mb-8 flex items-start justify-between gap-4">
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{page.title}</h1>
+                <div className="shrink-0 mt-1">
+                    <CopyPageDropdown page={page} />
+                </div>
+            </div>
+
+            {/* Content */}
+            <div
+                ref={contentRef}
+                className="docs-content prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: page.html }}
+            />
+
+            {/* Prev / Next */}
+            {(page.prev || page.next) && (
+                <div className={`mt-16 flex justify-between gap-4 border-t pt-8 ${
+                    theme === 'dark' ? 'border-white/5' : 'border-zinc-200'
+                }`}>
+                    {page.prev ? (
+                        <DocLink href={`/docs/${page.prev.path}`} className={`group text-left ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>
+                            <span className={`text-xs ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>Previous</span>
+                            <span className="text-sm font-medium flex items-center gap-1">
+                                <svg className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+                                {page.prev.title}
+                            </span>
+                        </DocLink>
+                    ) : <div />}
+                    {page.next ? (
+                        <DocLink href={`/docs/${page.next.path}`} className={`group text-right ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>
+                            <span className={`text-xs ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>Next</span>
+                            <span className="text-sm font-medium flex items-center gap-1">
+                                {page.next.title}
+                                <svg className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                            </span>
+                        </DocLink>
+                    ) : <div />}
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ── Main Page ────────────────────────────────────────────── */
+
+export default function DocsPage({ data }) {
+    const { version, slug, page, nav, notFound } = data;
+    const { theme } = useTheme();
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Close mobile sidebar on page navigation.
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [slug]);
+
+    // Update document title.
+    useEffect(() => {
+        if (notFound) {
+            document.title = '404 - Page Not Found | Pyxle Docs';
+        } else if (page?.title) {
+            document.title = `${page.title} - Pyxle Docs`;
+        }
+    }, [page?.title, notFound]);
+
+    // Keyboard shortcut: / for search.
+    useEffect(() => {
+        function handleKey(e) {
+            if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                setSearchOpen(true);
+            }
+        }
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, []);
+
+    return (
+        <div className="min-h-screen">
+            {/* Top bar */}
+            <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
+                theme === 'dark' ? 'bg-[#0a0a0b]/80 border-white/5' : 'bg-white/80 border-zinc-200'
+            }`}>
+                <div className="mx-auto flex max-w-[90rem] items-center justify-between px-4 sm:px-6 py-3">
+                    <div className="flex items-center gap-3">
+                        {/* Mobile hamburger */}
+                        <button
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className={`lg:hidden p-1.5 rounded-lg ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-zinc-100'}`}
+                        >
+                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                        </button>
+                        <DocLink href="/" className="flex items-center gap-2">
+                            <img src="/branding/pyxle-mark.svg" alt="Pyxle" className="h-6 w-6" />
+                            <span className="text-base font-semibold tracking-tight">Pyxle</span>
+                        </DocLink>
+                        <span className={`text-sm ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>/</span>
+                        <span className="text-sm font-medium">Docs</span>
+                        <span className={`hidden sm:inline rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                            theme === 'dark' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : 'border-emerald-200 bg-emerald-50 text-emerald-600'
+                        }`}>v{version}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setSearchOpen(true)}
+                            className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition ${
+                                theme === 'dark'
+                                    ? 'border-white/10 bg-white/5 text-zinc-500 hover:text-white'
+                                    : 'border-zinc-200 bg-zinc-50 text-zinc-400 hover:text-zinc-900'
+                            }`}
+                        >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                            </svg>
+                            <span className="hidden sm:inline">Search docs...</span>
+                            <kbd className={`hidden sm:inline rounded px-1.5 py-0.5 text-[10px] font-mono ${
+                                theme === 'dark' ? 'bg-white/10 text-zinc-500' : 'bg-zinc-200 text-zinc-400'
+                            }`}>/</kbd>
+                        </button>
+                        <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
+                           className={`hidden sm:flex items-center gap-1.5 text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                            GitHub
+                        </a>
+                        <ThemeToggle />
+                    </div>
+                </div>
+            </header>
+
+            {/* Mobile sidebar overlay */}
+            {sidebarOpen && (
+                <div className="fixed inset-0 z-40 lg:hidden" onClick={() => setSidebarOpen(false)}>
+                    <div className="absolute inset-0 bg-black/40" />
+                    <div className={`absolute left-0 top-0 bottom-0 w-72 overflow-y-auto p-6 pt-20 ${
+                        theme === 'dark' ? 'bg-[#0a0a0b]' : 'bg-white'
+                    }`} onClick={e => e.stopPropagation()}>
+                        <Sidebar nav={nav} currentPath={slug} />
+                    </div>
+                </div>
+            )}
+
+            {notFound ? (
+                <NotFoundPage backHref="/docs" backLabel="Back to docs" />
+            ) : (
+                <>
+                    {/* Desktop sidebar — fixed position */}
+                    <aside className={`hidden lg:block fixed left-0 top-[49px] bottom-0 w-64 z-30 overflow-y-auto border-r p-5 pb-12 ${
+                        theme === 'dark' ? 'border-white/5 bg-[#0a0a0b]' : 'border-zinc-200 bg-white'
+                    }`}>
+                        <Sidebar nav={nav} currentPath={slug} />
+                    </aside>
+
+                    {/* TOC — fixed position */}
+                    <aside className={`hidden xl:block fixed right-0 top-[49px] bottom-0 w-56 z-30 overflow-y-auto border-l p-5 pb-12 ${
+                        theme === 'dark' ? 'border-white/5 bg-[#0a0a0b]' : 'border-zinc-200 bg-white'
+                    }`}>
+                        <TableOfContents toc={page?.toc} />
+                    </aside>
+
+                    {/* Main content — offset by sidebar widths */}
+                    <main className="lg:ml-64 xl:mr-56 py-10 px-6 sm:px-8 lg:px-14 pb-32">
+                        <div className="max-w-4xl">
+                            <DocContent page={page} />
+                        </div>
+                    </main>
+                </>
+            )}
+
+            {/* Search modal */}
+            {searchOpen && (
+                <SearchModal onClose={() => setSearchOpen(false)} />
+            )}
+
+            {/* Syntax highlighting + Global background fix + Docs prose styles */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                ${HIGHLIGHT_CSS}
+                .heading-anchor { opacity: 0; display: inline-flex; align-items: center; margin-right: 0.4rem; vertical-align: middle; transition: opacity 0.15s, color 0.15s; color: ${theme === 'dark' ? '#52525b' : '#94a3b8'}; }
+                h2:hover .heading-anchor, h3:hover .heading-anchor, h4:hover .heading-anchor { opacity: 1; }
+                .heading-anchor:hover { color: #34d399 !important; opacity: 1 !important; }
+                .code-lang-badge { position: absolute; top: 0.5rem; left: 0.75rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: #52525b; font-family: 'JetBrains Mono', monospace; pointer-events: none; }
+                html, body { background-color: ${theme === 'dark' ? '#0a0a0b' : '#ffffff'} !important; }
+
+                .docs-content h2[id], .docs-content h3[id], .docs-content h4[id] { scroll-margin-top: 70px; }
+                .docs-content h2 { font-size: 1.4rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; color: ${theme === 'dark' ? '#fafafa' : '#18181b'}; border-bottom: 1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}; }
+                .docs-content h3 { font-size: 1.15rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.5rem; color: ${theme === 'dark' ? '#e4e4e7' : '#27272a'}; }
+                .docs-content h4 { font-size: 1rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: ${theme === 'dark' ? '#d4d4d8' : '#3f3f46'}; }
+                .docs-content p { margin-bottom: 1rem; line-height: 1.75; color: ${theme === 'dark' ? '#a1a1aa' : '#52525b'}; font-size: 0.9375rem; padding-left: 1.4rem; }
+                .docs-content a { color: #34d399; text-decoration: none; }
+                .docs-content a:hover { text-decoration: underline; }
+                .docs-content h2 a, .docs-content h3 a, .docs-content h4 a { color: inherit; }
+                .docs-content ul, .docs-content ol { margin-bottom: 1rem; margin-left: 1.4rem; padding-left: 1.5rem; color: ${theme === 'dark' ? '#a1a1aa' : '#52525b'}; }
+                .docs-content li { margin-bottom: 0.35rem; line-height: 1.75; font-size: 0.9375rem; }
+                .docs-content li > ul, .docs-content li > ol { margin-top: 0.35rem; margin-bottom: 0; }
+                .docs-content code:not(pre code) { font-family: 'JetBrains Mono', monospace; font-size: 0.825em; padding: 0.15em 0.4em; border-radius: 4px; background: ${theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}; color: ${theme === 'dark' ? '#6ee7b7' : '#059669'}; }
+                .docs-content .code-block { position: relative; margin-bottom: 1.25rem; border-radius: 0.75rem; overflow: hidden; border: 1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.1)'}; background: ${theme === 'dark' ? '#111113' : '#1a1a2e'}; }
+                .docs-content .code-block pre { margin: 0; padding: 2rem 1.25rem 1rem; overflow-x: auto; }
+                .docs-content .code-block code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.65; color: #d4d4d8; background: none; padding: 0; border-radius: 0; }
+                .docs-content .code-block .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.25rem 0.65rem; border-radius: 0.375rem; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #71717a; cursor: pointer; transition: all 0.15s; }
+                .docs-content .code-block .copy-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+                .docs-content table { width: calc(100% - 1.4rem); margin-bottom: 1.25rem; margin-left: 1.4rem; border-collapse: collapse; font-size: 0.875rem; }
+                .docs-content th { text-align: left; padding: 0.6rem 0.75rem; font-weight: 600; color: ${theme === 'dark' ? '#e4e4e7' : '#18181b'}; border-bottom: 2px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}; }
+                .docs-content td { padding: 0.6rem 0.75rem; border-bottom: 1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}; color: ${theme === 'dark' ? '#a1a1aa' : '#52525b'}; }
+                .docs-content blockquote { border-left: 3px solid ${theme === 'dark' ? '#34d399' : '#059669'}; padding: 0.75rem 1rem; margin: 1rem 0 1rem 1.4rem; border-radius: 0 0.5rem 0.5rem 0; background: ${theme === 'dark' ? 'rgba(52,211,153,0.05)' : 'rgba(5,150,105,0.04)'}; }
+                .docs-content blockquote p { color: ${theme === 'dark' ? '#a1a1aa' : '#52525b'}; margin-bottom: 0; }
+                .docs-content strong { color: ${theme === 'dark' ? '#fafafa' : '#18181b'}; }
+                .docs-content hr { border: none; border-top: 1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}; margin: 2rem 0; }
+            `}} />
+        </div>
+    );
+}
