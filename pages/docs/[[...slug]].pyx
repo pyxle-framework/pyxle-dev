@@ -11,7 +11,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=2" />',
 ]
 
 DOCS_DIR = Path(os.getcwd()) / "public" / "docs-data"
@@ -592,7 +592,7 @@ export default function DocsPage({ data }) {
                             theme === 'dark' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : 'border-emerald-200 bg-emerald-50 text-emerald-600'
                         }`}>v{version}</span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                         <button
                             onClick={() => setSearchOpen(true)}
                             className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition ${

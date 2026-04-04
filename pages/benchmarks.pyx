@@ -6,7 +6,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=2" />',
     '<meta property="og:title" content="Pyxle Benchmarks - Framework Performance Comparison" />',
     '<meta property="og:description" content="See how Pyxle performs against popular Python and Node.js frameworks." />',
 ]
@@ -188,10 +188,10 @@ function BenchNav({ version }) {
                     <span className={`text-sm ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>/</span>
                     <span className="text-sm font-medium">Benchmarks</span>
                 </div>
-                <div className="flex items-center gap-4">
-                    <Link href="/" className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Home</Link>
+                <div className="flex items-center gap-2 sm:gap-4">
+                    <Link href="/" className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Home</Link>
                     <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
-                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
+                       className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
                     <ThemeToggle />
                 </div>
             </div>

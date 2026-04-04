@@ -10,7 +10,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=2" />',
     '<meta property="og:title" content="Pyxle - Stop Splitting Backend and Frontend" />',
     '<meta property="og:description" content="Python + React in one file. SSR, routing, actions — zero glue." />',
 ]
@@ -260,7 +260,7 @@ function Nav({ version }) {
                         v{version}
                     </span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                     <a href="#code" onClick={(e) => scrollToSection(e, 'code')}
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Code</a>
                     <a href="#features" onClick={(e) => scrollToSection(e, 'features')}
