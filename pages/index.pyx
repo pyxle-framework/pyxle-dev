@@ -212,7 +212,9 @@ function MobileMenu() {
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Features</a>
                     <a href="#get-started" onClick={(e) => { scrollToSection(e, 'get-started'); setOpen(false); }}
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
-                    <Link href="/docs"
+                    <Link href="/benchmarks" onClick={() => setOpen(false)}
+                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Benchmarks</Link>
+                    <Link href="/docs" onClick={() => setOpen(false)}
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Docs</Link>
                     <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
@@ -674,25 +676,21 @@ export default function Dashboard({ data }) {
 /* Simple token-based syntax highlighter for .pyx code */
 function HighlightedCode({ code, lang = 'pyx' }) {
     const tokenizedLines = tokenizeBlock(code, lang);
-    return (
-        <>
-            <style dangerouslySetInnerHTML={{ __html: HIGHLIGHT_CSS }} />
-            {tokenizedLines.map((lineTokens, i) => (
-                <React.Fragment key={i}>
-                    {lineTokens.map((tok, j) => (
-                        <span key={j} className={tok.cls}>{tok.text}</span>
-                    ))}
-                    {'\n'}
-                </React.Fragment>
+    return tokenizedLines.map((lineTokens, i) => (
+        <React.Fragment key={i}>
+            {lineTokens.map((tok, j) => (
+                <span key={j} className={tok.cls}>{tok.text}</span>
             ))}
-        </>
-    );
+            {'\n'}
+        </React.Fragment>
+    ));
 }
 
 function CodeShowcase() {
     const { theme } = useTheme();
     return (
         <section id="code" className="relative px-6 py-24">
+            <style dangerouslySetInnerHTML={{ __html: HIGHLIGHT_CSS }} />
             <div className="mx-auto max-w-6xl">
                 <div className="text-center mb-16">
                     <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">
@@ -780,7 +778,7 @@ function FeatureIcon({ d }) {
 function Features() {
     const { theme } = useTheme();
     return (
-        <section id="features" className="relative px-6 py-24">
+        <section id="features" className="relative overflow-hidden px-6 py-24">
             <GradientOrb className="h-[500px] w-[500px] top-0 right-0 bg-emerald-600" />
             <div className="relative z-10 mx-auto max-w-6xl">
                 <Reveal>
@@ -841,7 +839,7 @@ const PYTHON_COMPARISON = [
 function Performance() {
     const { theme } = useTheme();
     return (
-        <section id="performance" className="relative px-6 py-24">
+        <section id="performance" className="relative overflow-hidden px-6 py-24">
             <GradientOrb className="h-[500px] w-[500px] bottom-0 left-0 bg-cyan-600" />
             <div className="relative z-10 mx-auto max-w-6xl">
                 <div className="text-center mb-16">
@@ -1044,7 +1042,7 @@ const USE_CASES = [
 function BuiltForAI() {
     const { theme } = useTheme();
     return (
-        <section className="relative px-6 py-24">
+        <section className="relative overflow-hidden px-6 py-24">
             <GradientOrb className="h-[500px] w-[500px] top-0 left-0 bg-blue-600" />
             <div className="relative z-10 mx-auto max-w-6xl">
                 <Reveal>
@@ -1109,7 +1107,7 @@ const INSTALL_STEPS = [
 function GetStarted() {
     const { theme } = useTheme();
     return (
-        <section id="get-started" className="relative px-6 py-24">
+        <section id="get-started" className="relative overflow-hidden px-6 py-24">
             <GradientOrb className="h-[500px] w-[500px] bottom-0 left-1/2 -translate-x-1/2 bg-blue-600" />
             <div className="relative z-10 mx-auto max-w-3xl text-center">
                 <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Get started</p>
