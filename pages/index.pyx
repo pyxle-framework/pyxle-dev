@@ -27,8 +27,6 @@ async def load_home(request):
 
 @action
 async def subscribe_newsletter(request):
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
     from db import add_subscriber
 
     body = await request.json()

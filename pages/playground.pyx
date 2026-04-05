@@ -19,10 +19,8 @@ VALID_EMOJIS = ["heart", "fire", "mind_blown", "rocket", "sparkles", "clap"]
 
 @server
 async def load_playground(request):
-    import sys, os, time, platform, uuid
+    import time, platform, uuid
     from datetime import datetime
-
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
     from db import get_reactions, increment_playground_views
 
     start = time.perf_counter()
@@ -43,8 +41,6 @@ async def load_playground(request):
 
 @action
 async def react_emoji(request):
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
     from db import increment_reaction, get_reactions
 
     body = await request.json()

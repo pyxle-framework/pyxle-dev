@@ -41,8 +41,6 @@ def _require_auth() -> Response:
 
 
 def _get_subscribers() -> list[dict]:
-    import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
     from db import get_all_subscribers
     return get_all_subscribers()
 
