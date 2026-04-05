@@ -75,7 +75,7 @@ async def transform_text(request):
 # --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
-import { useAction, Link, navigate } from 'pyxle/client';
+import { useAction, Link, refresh } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from './components/code-highlighter.jsx';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 
@@ -612,9 +612,9 @@ function ServerDemoSection({ data }) {
     const [refreshing, setRefreshing] = useState(false);
     const [highlight, setHighlight] = useState(false);
 
-    const refresh = useCallback(() => {
+    const handleRefresh = useCallback(() => {
         setRefreshing(true);
-        navigate('/playground').then(() => {
+        refresh().then(() => {
             setRefreshing(false);
             setHighlight(true);
             setTimeout(() => setHighlight(false), 1000);
@@ -658,7 +658,7 @@ function ServerDemoSection({ data }) {
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-lg font-semibold">Live Result</h3>
                                 <button
-                                    onClick={refresh}
+                                    onClick={handleRefresh}
                                     disabled={refreshing}
                                     className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                                         theme === 'dark'
