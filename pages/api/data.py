@@ -7,10 +7,12 @@ import time
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from pyxle import __version__ as version
+
 
 async def endpoint(request: Request) -> JSONResponse:
     return JSONResponse({
-        "version": "0.1.1",
+        "version": version,
         "features": [
             {"title": "File-Based Routing", "description": "Automatic routes from your file structure"},
             {"title": "Server Actions", "description": "Call server functions directly from React components"},

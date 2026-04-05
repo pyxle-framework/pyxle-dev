@@ -556,8 +556,7 @@
         "navigate(path)",
         "prefetch(path)",
         "refresh()"
-      ],
-      "content": " refresh() Re-run the current page server loader and re-render with fresh data without reloading."
+      ]
     },
     {
       "title": "SSR Pipeline",
