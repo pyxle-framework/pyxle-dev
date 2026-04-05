@@ -1038,7 +1038,7 @@ function FileRoutingSection() {
                             {FILE_TREE.map((item, i) => {
                                 const pad = item.indent * 24;
                                 const routeLabel = item.label || item.url;
-                                const isClickable = item.url && !item.current && item.type !== 'api';
+                                const isClickable = item.url && !item.current;
 
                                 const content = (
                                     <div
