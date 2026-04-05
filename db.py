@@ -46,6 +46,22 @@ def _init_tables(db_path: Path | None = None) -> None:
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS playground_reactions (
+                emoji TEXT PRIMARY KEY,
+                count INTEGER NOT NULL DEFAULT 0
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS playground_stats (
+                key   TEXT PRIMARY KEY,
+                value INTEGER NOT NULL DEFAULT 0
+            )
+            """
+        )
 
 
 # Ensure tables exist on first import.
@@ -92,3 +108,39 @@ def get_all_subscribers(*, db_path: Path | None = None) -> list[dict]:
             "SELECT id, email, subscribed_at FROM subscribers ORDER BY subscribed_at DESC"
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+# ── Playground API ───────────────────────────────────────────
+
+
+def increment_reaction(emoji: str, *, db_path: Path | None = None) -> None:
+    """Increment the reaction count for *emoji* (upsert)."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            "INSERT INTO playground_reactions (emoji, count) VALUES (?, 1) "
+            "ON CONFLICT(emoji) DO UPDATE SET count = count + 1",
+            (emoji,),
+        )
+
+
+def get_reactions(*, db_path: Path | None = None) -> dict[str, int]:
+    """Return ``{emoji: count}`` for all recorded reactions."""
+    with _connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT emoji, count FROM playground_reactions"
+        ).fetchall()
+    return {row[0]: row[1] for row in rows}
+
+
+def increment_playground_views(*, db_path: Path | None = None) -> int:
+    """Bump and return the playground page-view counter."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            "INSERT INTO playground_stats (key, value) VALUES ('views', 1) "
+            "ON CONFLICT(key) DO UPDATE SET value = value + 1",
+            (),
+        )
+        row = conn.execute(
+            "SELECT value FROM playground_stats WHERE key = 'views'"
+        ).fetchone()
+    return row[0] if row else 0

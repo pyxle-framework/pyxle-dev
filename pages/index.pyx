@@ -10,7 +10,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=2" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=3" />',
     '<meta property="og:title" content="Pyxle - Stop Splitting Backend and Frontend" />',
     '<meta property="og:description" content="Python + React in one file. SSR, routing, actions — zero glue." />',
 ]
@@ -212,6 +212,8 @@ function MobileMenu() {
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Features</a>
                     <a href="#get-started" onClick={(e) => { scrollToSection(e, 'get-started'); setOpen(false); }}
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
+                    <Link href="/playground" onClick={() => setOpen(false)}
+                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Playground</Link>
                     <Link href="/benchmarks" onClick={() => setOpen(false)}
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Benchmarks</Link>
                     <Link href="/docs" onClick={() => setOpen(false)}
@@ -269,6 +271,8 @@ function Nav({ version }) {
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Features</a>
                     <a href="#get-started" onClick={(e) => scrollToSection(e, 'get-started')}
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
+                    <Link href="/playground"
+                       className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Playground</Link>
                     <Link href="/benchmarks"
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Benchmarks</Link>
                     <Link href="/docs"
@@ -506,20 +510,19 @@ function Hero() {
 
                 <Reveal delay={240}>
                     <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                        <a
-                            href="#get-started"
-                            onClick={(e) => scrollToSection(e, 'get-started')}
+                        <Link
+                            href="/playground"
                             className={`group inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold transition shadow-lg ${
                                 theme === 'dark'
                                     ? 'bg-white text-black hover:bg-zinc-200 shadow-white/10'
                                     : 'bg-zinc-900 text-white hover:bg-zinc-700 shadow-zinc-900/20'
                             }`}
                         >
-                            Get started
+                            Try the playground
                             <svg className="h-4 w-4 transition group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
-                        </a>
+                        </Link>
                         <a
                             href="https://github.com/pyxle-framework/pyxle"
                             target="_blank"
@@ -1278,6 +1281,10 @@ function Footer() {
                     <Link href="/docs/faq"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
                         FAQ
+                    </Link>
+                    <Link href="/playground"
+                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
+                        Playground
                     </Link>
                     <Link href="/benchmarks"
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>

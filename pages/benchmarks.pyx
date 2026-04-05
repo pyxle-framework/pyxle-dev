@@ -6,7 +6,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=2" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=3" />',
     '<meta property="og:title" content="Pyxle Benchmarks - Framework Performance Comparison" />',
     '<meta property="og:description" content="See how Pyxle performs against popular Python and Node.js frameworks." />',
 ]
@@ -186,7 +186,7 @@ function BenchNav({ version }) {
                         <span className="text-lg font-semibold tracking-tight">Pyxle</span>
                     </Link>
                     <span className={`text-sm ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>/</span>
-                    <span className="text-sm font-medium">Benchmarks</span>
+                    <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-sm font-medium cursor-pointer">Benchmarks</a>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
                     <Link href="/" className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Home</Link>

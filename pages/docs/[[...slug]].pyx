@@ -11,7 +11,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=2" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=3" />',
 ]
 
 DOCS_DIR = Path(os.getcwd()) / "public" / "docs-data"
@@ -600,7 +600,7 @@ export default function DocsPage({ data }) {
                             <span className="text-base font-semibold tracking-tight">Pyxle</span>
                         </DocLink>
                         <span className={`text-sm ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>/</span>
-                        <span className="text-sm font-medium">Docs</span>
+                        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-sm font-medium cursor-pointer">Docs</a>
                         <span className={`hidden sm:inline rounded-full px-2 py-0.5 text-[10px] font-medium border ${
                             theme === 'dark' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : 'border-emerald-200 bg-emerald-50 text-emerald-600'
                         }`}>v{version}</span>
