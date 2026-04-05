@@ -41,16 +41,15 @@ async def load_playground(request):
 
 @action
 async def react_emoji(request):
-    from db import increment_reaction, get_reactions
+    from db import increment_reaction
 
     body = await request.json()
     emoji = body.get("emoji", "")
     if emoji not in VALID_EMOJIS:
         raise ActionError("Invalid reaction", status_code=400)
 
-    increment_reaction(emoji)
-    counts = get_reactions()
-    return {"ok": True, "counts": counts}
+    new_count = increment_reaction(emoji)
+    return {"ok": True, "emoji": emoji, "count": new_count}
 
 
 @action
@@ -548,8 +547,36 @@ export default function Dashboard({ data }) {
     );
 }`;
 
+const FORMAT_ANNOTATIONS = [
+    { marker: 'HEAD', color: 'text-cyan-400', desc: 'Static or dynamic document head. Strings, lists, or a lambda that receives loader data.', lines: [2] },
+    { marker: '@server', color: 'text-yellow-400', desc: 'Async Python function that fetches data. Receives a Starlette Request, returns a dict. It becomes React props.', lines: [4, 5, 6, 7, 8] },
+    { marker: '@action', color: 'text-yellow-400', desc: 'Server mutation callable from the browser. useAction() sends a POST, Python processes it, result comes back as JSON.', lines: [10, 11, 12, 13, 14] },
+    { marker: 'export default', color: 'text-blue-400', desc: 'Standard React component. Receives { data } from the loader. Server-rendered, then hydrated on the client.', lines: [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29] },
+];
+
+function HighlightedCodeWithLines({ code, lang = 'pyx', highlightLines = [] }) {
+    const blocks = tokenizeBlock(code, lang);
+    const highlightSet = new Set(highlightLines);
+    return (
+        <>
+            {blocks.map((line, i) => (
+                <div key={i} className={`-mx-4 sm:-mx-6 px-4 sm:px-6 transition-colors duration-200 ${
+                    highlightSet.has(i) ? 'bg-emerald-500/10' : ''
+                }`}>
+                    {line.map((tok, j) => (
+                        tok.cls ? <span key={j} className={tok.cls}>{tok.text}</span> : tok.text
+                    ))}
+                    {'\n'}
+                </div>
+            ))}
+        </>
+    );
+}
+
 function PyxFormatSection() {
     const { theme } = useTheme();
+    const [activeAnnotation, setActiveAnnotation] = useState(-1);
+    const highlightLines = activeAnnotation >= 0 ? FORMAT_ANNOTATIONS[activeAnnotation].lines : [];
 
     return (
         <section id="format-section" className="relative px-6 py-24 overflow-hidden">
@@ -565,19 +592,39 @@ function PyxFormatSection() {
                 <Reveal delay={80}>
                     <div className="grid lg:grid-cols-5 gap-6 items-stretch">
                         <div className="lg:col-span-3 flex">
-                            <CodeWindow title="pages/dashboard.pyx" code={PYX_DEMO_CODE} className="flex-1" />
+                            <div className={`flex-1 relative rounded-xl border overflow-hidden ${
+                                theme === 'dark' ? 'border-white/10 bg-[#111113]' : 'border-zinc-200 bg-[#1a1a2e]'
+                            }`}>
+                                <div className={`flex items-center gap-2 border-b px-4 py-3 ${
+                                    theme === 'dark' ? 'border-white/5' : 'border-zinc-700/30'
+                                }`}>
+                                    <span className="h-3 w-3 rounded-full bg-red-500/80" />
+                                    <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                                    <span className="h-3 w-3 rounded-full bg-green-500/80" />
+                                    <span className="ml-2 text-xs text-zinc-500 font-mono">pages/dashboard.pyx</span>
+                                </div>
+                                <CopyButton text={PYX_DEMO_CODE} />
+                                <pre className="p-4 sm:p-6 text-xs sm:text-sm leading-relaxed font-mono overflow-x-auto text-zinc-300">
+                                    <code><HighlightedCodeWithLines code={PYX_DEMO_CODE} highlightLines={highlightLines} /></code>
+                                </pre>
+                            </div>
                         </div>
                         <div className="lg:col-span-2 space-y-4 flex flex-col">
-                            {[
-                                { marker: '@server', color: 'text-yellow-400', desc: 'Async Python function that fetches data. Receives a Starlette Request, returns a dict. It becomes React props.' },
-                                { marker: '@action', color: 'text-yellow-400', desc: 'Server mutation callable from the browser. useAction() sends a POST, Python processes it, result comes back as JSON.' },
-                                { marker: 'HEAD', color: 'text-cyan-400', desc: 'Static or dynamic document head. Strings, lists, or a lambda that receives loader data.' },
-                                { marker: 'export default', color: 'text-blue-400', desc: 'Standard React component. Receives { data } from the loader. Server-rendered, then hydrated on the client.' },
-                            ].map((item, i) => (
+                            {FORMAT_ANNOTATIONS.map((item, i) => (
                                 <Reveal key={i} delay={120 + i * 70}>
-                                    <div className={`rounded-lg border p-4 ${
-                                        theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-zinc-50'
-                                    }`}>
+                                    <div
+                                        className={`rounded-lg border p-4 cursor-pointer transition-all ${
+                                            activeAnnotation === i
+                                                ? theme === 'dark'
+                                                    ? 'border-emerald-500/30 bg-emerald-500/[0.05]'
+                                                    : 'border-emerald-500/40 bg-emerald-50/50'
+                                                : theme === 'dark'
+                                                    ? 'border-white/5 bg-white/[0.02] hover:border-white/10'
+                                                    : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'
+                                        }`}
+                                        onMouseEnter={() => setActiveAnnotation(i)}
+                                        onMouseLeave={() => setActiveAnnotation(-1)}
+                                    >
                                         <code className={`text-sm font-mono font-semibold ${item.color}`}>{item.marker}</code>
                                         <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{item.desc}</p>
                                     </div>
@@ -715,15 +762,16 @@ async def react_emoji(request):
     if emoji not in VALID_EMOJIS:
         raise ActionError("Invalid reaction")
 
-    increment_reaction(emoji)
-    counts = get_reactions()
-    return {"ok": True, "counts": counts}`;
+    new_count = increment_reaction(emoji)
+    return {"ok": True, "emoji": emoji, "count": new_count}`;
 
 const ACTION_CLIENT_CODE = `const react = useAction('react_emoji');
 
 async function handleClick(emoji) {
     const result = await react({ emoji });
-    if (result.ok) setCounts(result.counts);
+    if (result.ok) {
+        setCounts(prev => ({ ...prev, [result.emoji]: result.count }));
+    }
 }`;
 
 function ReactionBoard({ data }) {
@@ -742,7 +790,7 @@ function ReactionBoard({ data }) {
         const ms = Math.round(performance.now() - start);
 
         if (result.ok) {
-            setCounts(result.counts);
+            setCounts(prev => ({ ...prev, [result.emoji]: result.count }));
             setLatencies(prev => ({ ...prev, [emoji]: ms }));
             setTimeout(() => setLatencies(prev => { const n = { ...prev }; delete n[emoji]; return n; }), 2000);
         } else {

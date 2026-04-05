@@ -113,14 +113,16 @@ def get_all_subscribers(*, db_path: Path | None = None) -> list[dict]:
 # ── Playground API ───────────────────────────────────────────
 
 
-def increment_reaction(emoji: str, *, db_path: Path | None = None) -> None:
-    """Increment the reaction count for *emoji* (upsert)."""
+def increment_reaction(emoji: str, *, db_path: Path | None = None) -> int:
+    """Atomically increment the reaction count for *emoji* and return the new count."""
     with _connect(db_path) as conn:
-        conn.execute(
+        row = conn.execute(
             "INSERT INTO playground_reactions (emoji, count) VALUES (?, 1) "
-            "ON CONFLICT(emoji) DO UPDATE SET count = count + 1",
+            "ON CONFLICT(emoji) DO UPDATE SET count = count + 1 "
+            "RETURNING count",
             (emoji,),
-        )
+        ).fetchone()
+    return row[0] if row else 1
 
 
 def get_reactions(*, db_path: Path | None = None) -> dict[str, int]:
@@ -133,14 +135,11 @@ def get_reactions(*, db_path: Path | None = None) -> dict[str, int]:
 
 
 def increment_playground_views(*, db_path: Path | None = None) -> int:
-    """Bump and return the playground page-view counter."""
+    """Atomically bump and return the playground page-view counter."""
     with _connect(db_path) as conn:
-        conn.execute(
-            "INSERT INTO playground_stats (key, value) VALUES ('views', 1) "
-            "ON CONFLICT(key) DO UPDATE SET value = value + 1",
-            (),
-        )
         row = conn.execute(
-            "SELECT value FROM playground_stats WHERE key = 'views'"
+            "INSERT INTO playground_stats (key, value) VALUES ('views', 1) "
+            "ON CONFLICT(key) DO UPDATE SET value = value + 1 "
+            "RETURNING value",
         ).fetchone()
     return row[0] if row else 0
