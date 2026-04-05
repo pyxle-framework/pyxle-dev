@@ -6,7 +6,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=3" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
     '<meta property="og:title" content="Pyxle Benchmarks - Framework Performance Comparison" />',
     '<meta property="og:description" content="See how Pyxle performs against popular Python and Node.js frameworks." />',
 ]
@@ -427,7 +427,7 @@ export default function BenchmarksPage({ data }) {
                         <img src="/branding/pyxle-mark.svg" alt="Pyxle" className="h-6 w-6 opacity-50" />
                         <span className={`text-sm ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Pyxle Framework</span>
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
                         <Link href="/" className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Home</Link>
                         <Link href="/docs"
                            className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Docs</Link>

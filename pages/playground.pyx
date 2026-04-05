@@ -9,7 +9,7 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=3" />',
+    '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
     '<meta property="og:title" content="Pyxle Playground - Try Pyxle Live" />',
     '<meta property="og:description" content="Interactive demos of server loaders, actions, SPA navigation, and more. Every interaction hits a real Python server." />',
 ]
@@ -205,7 +205,7 @@ function HighlightedCode({ code, lang = 'pyx' }) {
 function CodeWindow({ title, code, lang = 'pyx', className = '' }) {
     const { theme } = useTheme();
     return (
-        <div className={`relative rounded-xl border overflow-hidden ${
+        <div className={`relative rounded-xl border overflow-hidden min-w-0 ${
             theme === 'dark' ? 'border-white/10 bg-[#111113]' : 'border-zinc-200 bg-[#1a1a2e]'
         } ${className}`}>
             <div className={`flex items-center gap-2 border-b px-4 py-3 ${
@@ -591,8 +591,8 @@ function PyxFormatSection() {
 
                 <Reveal delay={80}>
                     <div className="grid lg:grid-cols-5 gap-6 items-stretch">
-                        <div className="lg:col-span-3 flex">
-                            <div className={`flex-1 relative rounded-xl border overflow-hidden ${
+                        <div className="lg:col-span-3 flex min-w-0">
+                            <div className={`flex-1 min-w-0 relative rounded-xl border overflow-hidden ${
                                 theme === 'dark' ? 'border-white/10 bg-[#111113]' : 'border-zinc-200 bg-[#1a1a2e]'
                             }`}>
                                 <div className={`flex items-center gap-2 border-b px-4 py-3 ${
@@ -694,11 +694,11 @@ function ServerDemoSection({ data }) {
                 </Reveal>
 
                 <div className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <Reveal delay={80} className="flex">
+                    <Reveal delay={80} className="flex min-w-0">
                         <CodeWindow title="@server loader" code={SERVER_CODE} lang="python" className="flex-1" />
                     </Reveal>
 
-                    <Reveal delay={160} className="flex">
+                    <Reveal delay={160} className="flex min-w-0">
                         <div className={`flex-1 rounded-xl border p-6 sm:p-8 flex flex-col ${
                             theme === 'dark' ? 'border-white/10 bg-white/[0.02]' : 'border-zinc-200 bg-white'
                         }`}>
@@ -813,7 +813,7 @@ function ReactionBoard({ data }) {
                 </Reveal>
 
                 <div className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <Reveal delay={80} className="flex">
+                    <Reveal delay={80} className="flex min-w-0">
                         <div className={`flex-1 rounded-xl border p-6 sm:p-8 flex flex-col ${
                             theme === 'dark' ? 'border-white/10 bg-white/[0.02]' : 'border-zinc-200 bg-white'
                         }`}>
@@ -855,8 +855,8 @@ function ReactionBoard({ data }) {
                         </div>
                     </Reveal>
 
-                    <Reveal delay={160} className="flex">
-                        <div className="flex-1 space-y-4 flex flex-col">
+                    <Reveal delay={160} className="flex min-w-0">
+                        <div className="flex-1 min-w-0 space-y-4 flex flex-col">
                             <CodeWindow title="Python @action" code={ACTION_CODE} lang="python" className="flex-1" />
                             <CodeWindow title="React client" code={ACTION_CLIENT_CODE} lang="js" />
                         </div>
@@ -925,7 +925,7 @@ function TextTransformSection() {
                 </Reveal>
 
                 <div className="grid lg:grid-cols-2 gap-6 items-stretch">
-                    <Reveal delay={80} className="flex">
+                    <Reveal delay={80} className="flex min-w-0">
                         <div className={`flex-1 rounded-xl border p-6 sm:p-8 ${
                             theme === 'dark' ? 'border-white/10 bg-white/[0.02]' : 'border-zinc-200 bg-white'
                         }`}>
@@ -976,7 +976,7 @@ function TextTransformSection() {
                         </div>
                     </Reveal>
 
-                    <Reveal delay={160} className="flex">
+                    <Reveal delay={160} className="flex min-w-0">
                         <CodeWindow title="@action transform_text" code={TRANSFORM_CODE} lang="python" className="flex-1" />
                     </Reveal>
                 </div>
@@ -1353,7 +1353,7 @@ function PlaygroundFooter() {
                     <img src="/branding/pyxle-mark.svg" alt="Pyxle" className="h-6 w-6 opacity-50" />
                     <span className={`text-sm ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Pyxle Framework</span>
                 </div>
-                <div className="flex items-center gap-6">
+                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
                     <Link href="/" className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Home</Link>
                     <Link href="/docs" className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Docs</Link>
                     <Link href="/benchmarks" className={`text-sm transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>Benchmarks</Link>

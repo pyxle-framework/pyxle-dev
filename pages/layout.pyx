@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
 
     return (
         <ThemeContext.Provider value={{ theme, toggle }}>
-            <div className={`min-h-screen antialiased transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0a0a0b] text-white' : 'bg-white text-zinc-900'}`}>
+            <div className={`min-h-screen overflow-x-hidden antialiased transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0a0a0b] text-white' : 'bg-white text-zinc-900'}`}>
                 {children}
             </div>
         </ThemeContext.Provider>
