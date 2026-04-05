@@ -288,6 +288,21 @@ function Nav({ version }) {
                         </svg>
                         GitHub
                     </a>
+                    <a
+                        href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/index.pyx"
+                        target="_blank"
+                        rel="noreferrer"
+                        title="View page source"
+                        className={`rounded-lg border p-2 transition ${
+                            theme === 'dark'
+                                ? 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white'
+                                : 'border-zinc-200 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900'
+                        }`}
+                    >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                        </svg>
+                    </a>
                     <ThemeToggle />
                     <MobileMenu />
                 </div>
@@ -454,7 +469,7 @@ function Hero() {
 
             <div className="relative z-10 max-w-5xl">
                 <Reveal>
-                    <div className={`mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm ${
+                    <div className={`mb-2 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm ${
                         theme === 'dark'
                             ? 'border-white/10 bg-white/5 text-zinc-400'
                             : 'border-zinc-200 bg-zinc-100 text-zinc-600'
@@ -462,6 +477,9 @@ function Hero() {
                         <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                         Open Source &middot; MIT Licensed
                     </div>
+                    <p className={`mb-6 text-xs ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                        You're looking at it — this site is built with Pyxle
+                    </p>
                 </Reveal>
 
                 <Reveal delay={80}>
@@ -1226,6 +1244,16 @@ function Newsletter() {
                 <p className={`mt-6 text-xs ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>
                     No spam, ever. Unsubscribe anytime.
                 </p>
+                <p className={`mt-2 text-xs ${theme === 'dark' ? 'text-zinc-700' : 'text-zinc-400'}`}>
+                    This form is a live{' '}
+                    <Link
+                        href="/docs/core-concepts/server-actions"
+                        className="underline decoration-dotted underline-offset-2 hover:text-emerald-400 transition"
+                    >
+                        @action
+                    </Link>{' '}
+                    demo — powered by Pyxle.
+                </p>
             </div>
         </section>
     );
@@ -1264,6 +1292,21 @@ function Footer() {
                         Issues
                     </a>
                 </div>
+            </div>
+            <div className={`mx-auto max-w-6xl mt-8 pt-6 border-t text-center ${
+                theme === 'dark' ? 'border-white/5' : 'border-zinc-100'
+            }`}>
+                <p className={`text-xs ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                    This site is built with Pyxle.{' '}
+                    <a
+                        href="https://github.com/pyxle-framework/pyxle-dev"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline decoration-dotted underline-offset-2 hover:text-emerald-400 transition"
+                    >
+                        View source
+                    </a>
+                </p>
             </div>
         </footer>
     );

@@ -192,6 +192,21 @@ function BenchNav({ version }) {
                     <Link href="/" className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Home</Link>
                     <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
+                    <a
+                        href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/benchmarks.pyx"
+                        target="_blank"
+                        rel="noreferrer"
+                        title="View page source"
+                        className={`rounded-lg border p-2 transition ${
+                            theme === 'dark'
+                                ? 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white'
+                                : 'border-zinc-200 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900'
+                        }`}
+                    >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                        </svg>
+                    </a>
                     <ThemeToggle />
                 </div>
             </div>

@@ -95,6 +95,12 @@ Health check: `GET /api/healthz`
 
 ---
 
+## Commit and Deploy Rules
+
+- **Always ask for explicit user confirmation before committing.** Show the planned commit message and files, and wait for approval.
+- **Always ask for explicit user confirmation before deploying.** Never deploy to production without the user saying to do so.
+- **Test changes locally** before committing — run `pyxle dev` and verify in the browser. This site is live at pyxle.dev; broken commits break the public website.
+
 ## DO NOT List
 
 - **DO NOT** commit `data/`, `.env`, or `DEPLOYMENT.md`
@@ -102,3 +108,4 @@ Health check: `GET /api/healthz`
 - **DO NOT** break the subscribe flow without testing end-to-end
 - **DO NOT** weaken HTTP Basic Auth on the admin panel
 - **DO NOT** expose subscriber emails in client code or public endpoints
+- **DO NOT** commit or deploy without explicit user confirmation
