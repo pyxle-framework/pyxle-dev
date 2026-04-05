@@ -3,6 +3,8 @@ node_modules/
 
 # Pyxle build artifacts
 .pyxle-build/
+.pyxle-virtual/
+.pyxle/
 dist/
 
 # Python bytecode
