@@ -175,3 +175,26 @@ def increment_playground_views(*, db_path: Path | None = None) -> int:
             "RETURNING value",
         ).fetchone()
     return row[0] if row else 0
+
+
+# ── Home page clicker ────────────────────────────────────────
+
+
+def get_home_clicks(*, db_path: Path | None = None) -> int:
+    """Read the persistent home-page click counter."""
+    with _connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT value FROM playground_stats WHERE key = 'home_clicks'"
+        ).fetchone()
+    return row[0] if row else 0
+
+
+def increment_home_clicks(*, db_path: Path | None = None) -> int:
+    """Atomically bump the home-page click counter and return the new total."""
+    with _connect(db_path) as conn:
+        row = conn.execute(
+            "INSERT INTO playground_stats (key, value) VALUES ('home_clicks', 1) "
+            "ON CONFLICT(key) DO UPDATE SET value = value + 1 "
+            "RETURNING value",
+        ).fetchone()
+    return row[0] if row else 1
