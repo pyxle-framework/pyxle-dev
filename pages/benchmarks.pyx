@@ -1,21 +1,3 @@
-HEAD = [
-    '<title>Benchmarks - Pyxle Framework</title>',
-    '<meta name="description" content="Transparent performance benchmarks comparing Pyxle against FastAPI, Django, Flask, Express, Hono, and Next.js." />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
-    '<link rel="preconnect" href="https://fonts.googleapis.com" />',
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
-    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
-    '<meta property="og:title" content="Pyxle Benchmarks - Framework Performance Comparison" />',
-    '<meta property="og:description" content="See how Pyxle performs against popular Python and Node.js frameworks." />',
-    '<meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />',
-    '<meta property="og:type" content="website" />',
-    '<meta name="twitter:card" content="summary_large_image" />',
-    '<meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />',
-]
-
-
 @server
 async def load_benchmarks(request):
     from pyxle import __version__
@@ -25,7 +7,7 @@ async def load_benchmarks(request):
 # --- client ---
 import React, { useState } from 'react';
 import { useTheme } from './layout.jsx';
-import { Link } from 'pyxle/client';
+import { Link, Head } from 'pyxle/client';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 
 export const slots = {};
@@ -229,6 +211,22 @@ export default function BenchmarksPage({ data }) {
 
     return (
         <>
+            <Head>
+                <title>Benchmarks - Pyxle Framework</title>
+                <meta name="description" content="Transparent performance benchmarks comparing Pyxle against FastAPI, Django, Flask, Express, Hono, and Next.js." />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+                <link rel="stylesheet" href="/styles/tailwind.css?v=4" />
+                <meta property="og:title" content="Pyxle Benchmarks - Framework Performance Comparison" />
+                <meta property="og:description" content="See how Pyxle performs against popular Python and Node.js frameworks." />
+                <meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />
+            </Head>
             <BenchNav version={version} />
 
             {/* Hero */}

@@ -3,23 +3,6 @@ import json
 import os
 from pathlib import Path
 
-HEAD = [
-    '<title>Documentation - Pyxle Framework</title>',
-    '<meta name="description" content="Pyxle framework documentation. Learn to build full-stack Python + React apps." />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
-    '<link rel="preconnect" href="https://fonts.googleapis.com" />',
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
-    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
-    '<meta property="og:title" content="Documentation - Pyxle Framework" />',
-    '<meta property="og:description" content="Pyxle framework documentation. Learn to build full-stack Python + React apps." />',
-    '<meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />',
-    '<meta property="og:type" content="website" />',
-    '<meta name="twitter:card" content="summary_large_image" />',
-    '<meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />',
-]
-
 DOCS_DIR = Path(os.getcwd()) / "public" / "docs-data"
 
 _manifest_cache = None
@@ -80,7 +63,7 @@ async def search_docs(request):
 # --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from '../layout.pyx';
-import { Link, navigate, useAction } from 'pyxle/client';
+import { Link, navigate, useAction, Head } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from '../components/code-highlighter.jsx';
 import { ThemeToggle } from '../components/theme-toggle.jsx';
 import NotFoundContent from '../components/not-found-content.jsx';
@@ -565,14 +548,9 @@ export default function DocsPage({ data }) {
         setSidebarOpen(false);
     }, [slug]);
 
-    // Update document title.
-    useEffect(() => {
-        if (notFound) {
-            document.title = '404 - Page Not Found | Pyxle Docs';
-        } else if (page?.title) {
-            document.title = `${page.title} - Pyxle Docs`;
-        }
-    }, [page?.title, notFound]);
+    const pageTitle = notFound
+        ? '404 - Page Not Found | Pyxle Docs'
+        : (page?.title ? `${page.title} - Pyxle Docs` : 'Documentation - Pyxle Framework');
 
     // Keyboard shortcut: / for search.
     useEffect(() => {
@@ -588,6 +566,22 @@ export default function DocsPage({ data }) {
 
     return (
         <div className="min-h-screen">
+            <Head>
+                <title>{pageTitle}</title>
+                <meta name="description" content="Pyxle framework documentation. Learn to build full-stack Python + React apps." />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+                <link rel="stylesheet" href="/styles/tailwind.css?v=4" />
+                <meta property="og:title" content="Documentation - Pyxle Framework" />
+                <meta property="og:description" content="Pyxle framework documentation. Learn to build full-stack Python + React apps." />
+                <meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />
+            </Head>
             {/* Top bar */}
             <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
                 theme === 'dark' ? 'bg-[#0a0a0b]/80 border-white/5' : 'bg-white/80 border-zinc-200'

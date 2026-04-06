@@ -1,23 +1,6 @@
 from pyxle import __version__
 from pyxle.runtime import ActionError
 
-HEAD = [
-    '<title>Playground - Pyxle Framework</title>',
-    '<meta name="description" content="Experience Pyxle live. Every interaction on this page hits a real Python server. Try server loaders, actions, SPA navigation, and more." />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
-    '<link rel="preconnect" href="https://fonts.googleapis.com" />',
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
-    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
-    '<meta property="og:title" content="Pyxle Playground - Try Pyxle Live" />',
-    '<meta property="og:description" content="Interactive demos of server loaders, actions, SPA navigation, and more. Every interaction hits a real Python server." />',
-    '<meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />',
-    '<meta property="og:type" content="website" />',
-    '<meta name="twitter:card" content="summary_large_image" />',
-    '<meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />',
-]
-
 VALID_EMOJIS = ["heart", "fire", "mind_blown", "rocket", "sparkles", "clap"]
 
 
@@ -78,7 +61,7 @@ async def transform_text(request):
 # --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
-import { useAction, Link, refresh } from 'pyxle/client';
+import { useAction, Link, refresh, Head } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from './components/code-highlighter.jsx';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 
@@ -1389,6 +1372,22 @@ function PlaygroundFooter() {
 export default function PlaygroundPage({ data }) {
     return (
         <>
+            <Head>
+                <title>Playground - Pyxle Framework</title>
+                <meta name="description" content="Experience Pyxle live. Every interaction on this page hits a real Python server. Try server loaders, actions, SPA navigation, and more." />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+                <link rel="stylesheet" href="/styles/tailwind.css?v=4" />
+                <meta property="og:title" content="Pyxle Playground - Try Pyxle Live" />
+                <meta property="og:description" content="Interactive demos of server loaders, actions, SPA navigation, and more. Every interaction hits a real Python server." />
+                <meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />
+            </Head>
             <style dangerouslySetInnerHTML={{ __html: HIGHLIGHT_CSS }} />
             <PlaygroundNav version={data.version} />
             <Hero data={data} />

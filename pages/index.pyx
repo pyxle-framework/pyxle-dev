@@ -2,23 +2,6 @@ import re as _re
 from pyxle import __version__
 from pyxle.runtime import ActionError
 
-HEAD = [
-    '<title>Pyxle - Stop Splitting Backend and Frontend</title>',
-    '<meta name="description" content="Python server logic and React UI in one .pyx file. SSR, file routing, server actions — zero glue code." />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
-    '<link rel="preconnect" href="https://fonts.googleapis.com" />',
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
-    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
-    '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
-    '<meta property="og:title" content="Pyxle - Stop Splitting Backend and Frontend" />',
-    '<meta property="og:description" content="Python + React in one file. SSR, routing, actions — zero glue." />',
-    '<meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />',
-    '<meta property="og:type" content="website" />',
-    '<meta name="twitter:card" content="summary_large_image" />',
-    '<meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />',
-]
-
 _EMAIL_RE = _re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
 
 
@@ -56,7 +39,7 @@ async def subscribe_newsletter(request):
 # --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
-import { useAction, Link } from 'pyxle/client';
+import { useAction, Link, Head } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from './components/code-highlighter.jsx';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 
@@ -1332,6 +1315,22 @@ export default function Page({ data }) {
     const { version } = data;
     return (
         <>
+            <Head>
+                <title>Pyxle - Stop Splitting Backend and Frontend</title>
+                <meta name="description" content="Python server logic and React UI in one .pyx file. SSR, file routing, server actions — zero glue code." />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+                <link rel="stylesheet" href="/styles/tailwind.css?v=4" />
+                <meta property="og:title" content="Pyxle - Stop Splitting Backend and Frontend" />
+                <meta property="og:description" content="Python + React in one file. SSR, routing, actions — zero glue." />
+                <meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />
+            </Head>
             <Nav version={version} />
             <Hero />
             <WhyPyxle />
