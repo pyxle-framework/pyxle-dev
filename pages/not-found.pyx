@@ -2,7 +2,7 @@ HEAD = [
     '<title>404 - Page Not Found | Pyxle</title>',
     '<meta name="description" content="The page you are looking for does not exist." />',
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    '<link rel="icon" href="/favicon.ico" />',
+    '<link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
     '<link rel="preconnect" href="https://fonts.googleapis.com" />',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',

@@ -12,6 +12,12 @@ HEAD = [
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />',
     '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
+    '<meta property="og:title" content="Documentation - Pyxle Framework" />',
+    '<meta property="og:description" content="Pyxle framework documentation. Learn to build full-stack Python + React apps." />',
+    '<meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />',
+    '<meta property="og:type" content="website" />',
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />',
 ]
 
 DOCS_DIR = Path(os.getcwd()) / "public" / "docs-data"

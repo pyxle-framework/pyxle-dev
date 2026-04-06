@@ -9,6 +9,10 @@ HEAD = [
     '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
     '<meta property="og:title" content="Pyxle Benchmarks - Framework Performance Comparison" />',
     '<meta property="og:description" content="See how Pyxle performs against popular Python and Node.js frameworks." />',
+    '<meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />',
+    '<meta property="og:type" content="website" />',
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />',
 ]
 
 

@@ -13,6 +13,10 @@ HEAD = [
     '<link rel="stylesheet" href="/styles/tailwind.css?v=4" />',
     '<meta property="og:title" content="Pyxle - Stop Splitting Backend and Frontend" />',
     '<meta property="og:description" content="Python + React in one file. SSR, routing, actions — zero glue." />',
+    '<meta property="og:image" content="https://pyxle.dev/branding/og-default.png" />',
+    '<meta property="og:type" content="website" />',
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />',
 ]
 
 _EMAIL_RE = _re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
@@ -27,7 +31,11 @@ async def load_home(request):
 
 @action
 async def subscribe_newsletter(request):
-    from db import add_subscriber
+    from db import add_subscriber, check_rate_limit
+
+    client_ip = request.client.host if request.client else "unknown"
+    if not check_rate_limit(client_ip):
+        raise ActionError("Too many attempts. Please try again later.", status_code=429)
 
     body = await request.json()
     email = (body.get("email") or "").strip().lower()

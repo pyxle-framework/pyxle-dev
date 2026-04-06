@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
@@ -132,6 +132,38 @@ def get_reactions(*, db_path: Path | None = None) -> dict[str, int]:
             "SELECT emoji, count FROM playground_reactions"
         ).fetchall()
     return {row[0]: row[1] for row in rows}
+
+
+def check_rate_limit(
+    ip: str, *, max_attempts: int = 5, window_seconds: int = 3600,
+    db_path: Path | None = None,
+) -> bool:
+    """Return ``True`` if the IP is within the rate limit, ``False`` if blocked."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS rate_limits (
+                ip          TEXT    NOT NULL,
+                attempted_at TEXT   NOT NULL
+            )
+            """
+        )
+        cutoff = datetime.now(tz=timezone.utc) - timedelta(seconds=window_seconds)
+        conn.execute(
+            "DELETE FROM rate_limits WHERE attempted_at < ?",
+            (cutoff.isoformat(),),
+        )
+        row = conn.execute(
+            "SELECT COUNT(*) FROM rate_limits WHERE ip = ? AND attempted_at >= ?",
+            (ip, cutoff.isoformat()),
+        ).fetchone()
+        if row and row[0] >= max_attempts:
+            return False
+        conn.execute(
+            "INSERT INTO rate_limits (ip, attempted_at) VALUES (?, ?)",
+            (ip, datetime.now(tz=timezone.utc).isoformat()),
+        )
+    return True
 
 
 def increment_playground_views(*, db_path: Path | None = None) -> int:
