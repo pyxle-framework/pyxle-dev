@@ -28,7 +28,17 @@ async def load_playground(request):
 
 @action
 async def react_emoji(request):
-    from db import increment_reaction
+    from db import check_rate_limit, increment_reaction
+
+    client_ip = request.client.host if request.client else "unknown"
+    # 5 reactions per hour per IP, scoped to the playground reactions
+    # board only. Independent of the home clicker and newsletter
+    # buckets.
+    if not check_rate_limit(client_ip, scope="react_emoji"):
+        raise ActionError(
+            "Rate limit reached. Please try again after 1 hour.",
+            status_code=429,
+        )
 
     body = await request.json()
     emoji = body.get("emoji", "")
@@ -767,6 +777,7 @@ function ReactionBoard({ data }) {
     const [counts, setCounts] = useState(data.reactions || {});
     const [latencies, setLatencies] = useState({});
     const [animating, setAnimating] = useState({});
+    const [error, setError] = useState('');
 
     const handleClick = async (emoji) => {
         setCounts(prev => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
@@ -779,9 +790,14 @@ function ReactionBoard({ data }) {
         if (result.ok) {
             setCounts(prev => ({ ...prev, [result.emoji]: result.count }));
             setLatencies(prev => ({ ...prev, [emoji]: ms }));
+            setError('');
             setTimeout(() => setLatencies(prev => { const n = { ...prev }; delete n[emoji]; return n; }), 2000);
         } else {
+            /* Roll back the optimistic count and surface the server
+               error (rate limit, invalid emoji, etc.) so the user
+               knows why their click didn't stick. */
             setCounts(prev => ({ ...prev, [emoji]: Math.max(0, (prev[emoji] || 1) - 1) }));
+            setError(result.error || 'Something went wrong. Please try again.');
         }
         setTimeout(() => setAnimating(prev => ({ ...prev, [emoji]: false })), 200);
     };
@@ -836,6 +852,11 @@ function ReactionBoard({ data }) {
                                     </button>
                                 ))}
                             </div>
+                            {error && (
+                                <p className="mt-4 text-sm font-medium text-red-500" role="alert">
+                                    {error}
+                                </p>
+                            )}
                             <p className={`mt-auto pt-6 text-xs ${theme === 'dark' ? 'text-zinc-600' : 'text-zinc-400'}`}>
                                 Every click is a POST to Python. No API routes needed.
                             </p>

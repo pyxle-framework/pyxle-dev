@@ -134,34 +134,79 @@ def get_reactions(*, db_path: Path | None = None) -> dict[str, int]:
     return {row[0]: row[1] for row in rows}
 
 
+def _ensure_rate_limits_schema(conn: sqlite3.Connection) -> None:
+    """Create or migrate the ``rate_limits`` table to the current schema.
+
+    Each row represents a single action call from a single IP against a
+    named scope (e.g. ``click_home``, ``subscribe_newsletter``). The
+    ``scope`` column lets every feature run an independent bucket so
+    exhausting the home clicker doesn't lock the user out of the
+    newsletter or reactions.
+
+    Legacy databases from before the scope column was added get migrated
+    in place with an ``ALTER TABLE ADD COLUMN``; existing rows are
+    implicitly migrated into the empty ``""`` scope (harmless -- they'll
+    be GC'd within the hour alongside the active buckets).
+    """
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS rate_limits (
+            ip           TEXT NOT NULL,
+            attempted_at TEXT NOT NULL,
+            scope        TEXT NOT NULL DEFAULT ''
+        )
+        """
+    )
+    existing_columns = {row[1] for row in conn.execute("PRAGMA table_info(rate_limits)")}
+    if "scope" not in existing_columns:
+        conn.execute(
+            "ALTER TABLE rate_limits ADD COLUMN scope TEXT NOT NULL DEFAULT ''"
+        )
+
+
 def check_rate_limit(
-    ip: str, *, max_attempts: int = 5, window_seconds: int = 3600,
+    ip: str,
+    *,
+    scope: str,
+    max_attempts: int = 5,
+    window_seconds: int = 3600,
     db_path: Path | None = None,
 ) -> bool:
-    """Return ``True`` if the IP is within the rate limit, ``False`` if blocked."""
+    """Return ``True`` if the IP is within the rate limit for *scope*, ``False`` if blocked.
+
+    Every caller must pass an explicit ``scope`` string identifying the
+    feature being rate-limited (e.g. ``"click_home"``). Buckets are
+    independent per ``(ip, scope)`` tuple, so exhausting one feature's
+    quota never spills over into another.
+
+    The helper opportunistically GCs rows older than the rolling window
+    across all scopes at the start of every call, so a scope that sees
+    any traffic also cleans up its siblings. The out-of-band cleanup in
+    ``scripts/cleanup_rate_limits.py`` exists to handle scopes that
+    haven't been touched recently.
+    """
+
     with _connect(db_path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS rate_limits (
-                ip          TEXT    NOT NULL,
-                attempted_at TEXT   NOT NULL
-            )
-            """
-        )
-        cutoff = datetime.now(tz=timezone.utc) - timedelta(seconds=window_seconds)
+        _ensure_rate_limits_schema(conn)
+
+        now = datetime.now(tz=timezone.utc)
+        cutoff_iso = (now - timedelta(seconds=window_seconds)).isoformat()
+
         conn.execute(
             "DELETE FROM rate_limits WHERE attempted_at < ?",
-            (cutoff.isoformat(),),
+            (cutoff_iso,),
         )
         row = conn.execute(
-            "SELECT COUNT(*) FROM rate_limits WHERE ip = ? AND attempted_at >= ?",
-            (ip, cutoff.isoformat()),
+            "SELECT COUNT(*) FROM rate_limits "
+            "WHERE ip = ? AND scope = ? AND attempted_at >= ?",
+            (ip, scope, cutoff_iso),
         ).fetchone()
         if row and row[0] >= max_attempts:
             return False
         conn.execute(
-            "INSERT INTO rate_limits (ip, attempted_at) VALUES (?, ?)",
-            (ip, datetime.now(tz=timezone.utc).isoformat()),
+            "INSERT INTO rate_limits (ip, attempted_at, scope) VALUES (?, ?, ?)",
+            (ip, now.isoformat(), scope),
         )
     return True
 

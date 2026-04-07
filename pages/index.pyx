@@ -20,10 +20,15 @@ async def click_home(request):
     from db import check_rate_limit, increment_home_clicks
 
     client_ip = request.client.host if request.client else "unknown"
-    # Generous limit — 120 clicks per minute is well above any honest user
-    # but stops a single IP from completely dominating the counter.
-    if not check_rate_limit(client_ip, max_attempts=120, window_seconds=60):
-        raise ActionError("Slow down a bit!", status_code=429)
+    # 5 clicks per hour per IP, scoped to the home clicker only.
+    # Exhausting this bucket does not affect the newsletter form or
+    # playground reactions -- each feature has its own independent
+    # bucket keyed on (ip, scope).
+    if not check_rate_limit(client_ip, scope="click_home"):
+        raise ActionError(
+            "Rate limit reached. Please try again after 1 hour.",
+            status_code=429,
+        )
 
     return {"clicks": increment_home_clicks()}
 
@@ -33,8 +38,13 @@ async def subscribe_newsletter(request):
     from db import add_subscriber, check_rate_limit
 
     client_ip = request.client.host if request.client else "unknown"
-    if not check_rate_limit(client_ip):
-        raise ActionError("Too many attempts. Please try again later.", status_code=429)
+    # 5 subscribe attempts per hour per IP, scoped to the newsletter
+    # form only. Independent of the home clicker and reactions buckets.
+    if not check_rate_limit(client_ip, scope="subscribe_newsletter"):
+        raise ActionError(
+            "Rate limit reached. Please try again after 1 hour.",
+            status_code=429,
+        )
 
     body = await request.json()
     email = (body.get("email") or "").strip().lower()

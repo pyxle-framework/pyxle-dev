@@ -50,17 +50,21 @@ import { useAction } from 'pyxle/client';
 
 export default function Clicker({ data }) {
     const [n, setN] = useState(data.clicks);
+    const [error, setError] = useState('');
     const tap = useAction("click_home");
+
+    const handleClick = async () => {
+        const r = await tap();
+        if (r.ok) { setN(r.clicks); setError(''); }
+        else setError(r.error);
+    };
 
     return (
         <div className="clicker">
             <p>Global clicks worldwide</p>
             <h1>{n.toLocaleString()}</h1>
-            <button onClick={async () =>
-                setN((await tap()).clicks)
-            }>
-                Click me
-            </button>
+            <button onClick={handleClick}>Click me</button>
+            {error && <span className="error">{error}</span>}
         </div>
     );
 }`;
@@ -159,6 +163,7 @@ const TokenizedCode = React.memo(function TokenizedCode() {
 
 function ClickerPreview({ initialClicks = 0 }) {
     const [n, setN] = useState(initialClicks);
+    const [error, setError] = useState('');
     const inFlightRef = useRef(false);
     const tap = useAction('click_home');
 
@@ -173,9 +178,15 @@ function ClickerPreview({ initialClicks = 0 }) {
             const result = await tap();
             if (result && typeof result.clicks === 'number') {
                 setN(result.clicks);
+                setError('');
+            } else if (result && result.ok === false && result.error) {
+                /* Rate limit or validation failure: roll back and surface
+                   the message so the user knows why the count didn't move. */
+                setN(v => Math.max(0, v - 1));
+                setError(result.error);
             }
         } catch (e) {
-            /* Roll back the optimistic bump on failure (e.g. rate limit) */
+            /* Network failure: roll back the optimistic bump. */
             setN(v => Math.max(0, v - 1));
         } finally {
             inFlightRef.current = false;
@@ -191,6 +202,7 @@ function ClickerPreview({ initialClicks = 0 }) {
             <button type="button" onClick={handleClick} tabIndex={-1}>
                 Click me
             </button>
+            {error && <span className="hv-clicker-error">{error}</span>}
         </div>
     );
 }
