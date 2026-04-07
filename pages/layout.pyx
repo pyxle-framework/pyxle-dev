@@ -1,3 +1,4 @@
+import './styles/tailwind.css';
 import React, { useState, useEffect, createContext, useContext } from 'react';
 
 const ThemeContext = createContext({ theme: 'dark', toggle: () => {} });

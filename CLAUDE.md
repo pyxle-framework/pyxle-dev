@@ -104,6 +104,7 @@ Health check: `GET /api/healthz`
 ## DO NOT List
 
 - **DO NOT** commit `data/`, `.env`, or `DEPLOYMENT.md`
+- **DO NOT** push the local database to production. The local `data/pyxle.db` is test data only — it must NEVER reach EC2. Every rsync/scp targeting prod MUST explicitly exclude `data/`, `local/`, `.env`, `*.db`, `*.db-wal`, `*.db-shm`, `DEPLOYMENT.md`. If you copy the deploy command from `DEPLOYMENT.md`, audit the `--exclude` list first and patch in any missing items before running it. Production DB is the source of truth — flow is prod→local, never local→prod.
 - **DO NOT** hardcode secrets — use environment variables
 - **DO NOT** break the subscribe flow without testing end-to-end
 - **DO NOT** weaken HTTP Basic Auth on the admin panel
