@@ -28,9 +28,9 @@ async def load_playground(request):
 
 @action
 async def react_emoji(request):
-    from db import check_rate_limit, increment_reaction
+    from db import check_rate_limit, get_client_ip, increment_reaction
 
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = get_client_ip(request)
     # 5 reactions per hour per IP, scoped to the playground reactions
     # board only. Independent of the home clicker and newsletter
     # buckets.

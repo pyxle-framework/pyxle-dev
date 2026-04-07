@@ -17,9 +17,9 @@ async def load_home(request):
 
 @action
 async def click_home(request):
-    from db import check_rate_limit, increment_home_clicks
+    from db import check_rate_limit, get_client_ip, increment_home_clicks
 
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = get_client_ip(request)
     # 5 clicks per hour per IP, scoped to the home clicker only.
     # Exhausting this bucket does not affect the newsletter form or
     # playground reactions -- each feature has its own independent
@@ -35,9 +35,9 @@ async def click_home(request):
 
 @action
 async def subscribe_newsletter(request):
-    from db import add_subscriber, check_rate_limit
+    from db import add_subscriber, check_rate_limit, get_client_ip
 
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = get_client_ip(request)
     # 5 subscribe attempts per hour per IP, scoped to the newsletter
     # form only. Independent of the home clicker and reactions buckets.
     if not check_rate_limit(client_ip, scope="subscribe_newsletter"):

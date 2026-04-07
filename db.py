@@ -134,6 +134,50 @@ def get_reactions(*, db_path: Path | None = None) -> dict[str, int]:
     return {row[0]: row[1] for row in rows}
 
 
+def get_client_ip(request: object) -> str:
+    """Return the real client IP for rate-limit bucketing.
+
+    Production traffic flows ``browser -> Cloudflare -> nginx -> Starlette``.
+    Starlette's ``request.client.host`` shows the immediate peer -- the
+    local nginx proxy or the Cloudflare edge -- which is useless for
+    per-visitor rate limiting because:
+
+    - Cloudflare edges rotate across requests, so a single user can fan
+      out across many edge IPs within seconds.
+    - Every visitor on the site shares the same nginx proxy IP (127.0.0.1
+      from Starlette's perspective).
+
+    The only trustworthy real-IP signal on a Cloudflare-fronted origin is
+    the ``CF-Connecting-IP`` header, which Cloudflare sets on every
+    request and scrubs if the client sends it themselves. ``X-Forwarded-For``
+    is a reasonable secondary fallback for other reverse proxies; its
+    leftmost entry is the original client. ``request.client.host`` is the
+    last-resort fallback for local development, where neither header is
+    set and the user IS the peer.
+
+    Returns ``"unknown"`` only as a final safety net; callers pass the
+    return value straight into ``check_rate_limit`` as the bucket key.
+    """
+
+    headers = getattr(request, "headers", None)
+    if headers is not None:
+        cf_ip = headers.get("cf-connecting-ip")
+        if cf_ip:
+            cf_ip = cf_ip.strip()
+            if cf_ip:
+                return cf_ip
+        forwarded = headers.get("x-forwarded-for")
+        if forwarded:
+            # ``X-Forwarded-For: client, proxy1, proxy2`` -- the leftmost
+            # entry is the original client.
+            first = forwarded.split(",")[0].strip()
+            if first:
+                return first
+    client = getattr(request, "client", None)
+    host = getattr(client, "host", None) if client is not None else None
+    return host or "unknown"
+
+
 def _ensure_rate_limits_schema(conn: sqlite3.Connection) -> None:
     """Create or migrate the ``rate_limits`` table to the current schema.
 
