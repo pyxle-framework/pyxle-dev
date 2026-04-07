@@ -752,7 +752,7 @@ const EMOJI_MAP = {
     clap: { icon: '\uD83D\uDC4F', label: 'Clap' },
 };
 
-const ACTION_CODE = `@action
+const ACTION_PYX_CODE = `@action
 async def react_emoji(request):
     body = await request.json()
     emoji = body.get("emoji", "")
@@ -760,15 +760,25 @@ async def react_emoji(request):
         raise ActionError("Invalid reaction")
 
     new_count = increment_reaction(emoji)
-    return {"ok": True, "emoji": emoji, "count": new_count}`;
+    return {"ok": True, "emoji": emoji, "count": new_count}
 
-const ACTION_CLIENT_CODE = `const react = useAction('react_emoji');
+import React, { useState } from 'react';
+import { useAction } from 'pyxle/client';
 
-async function handleClick(emoji) {
-    const result = await react({ emoji });
-    if (result.ok) {
-        setCounts(prev => ({ ...prev, [result.emoji]: result.count }));
+export default function Reactions({ data }) {
+    const react = useAction('react_emoji');
+    const [counts, setCounts] = useState(data.reactions);
+
+    async function handleClick(emoji) {
+        const result = await react({ emoji });
+        if (result.ok) {
+            setCounts(prev => ({ ...prev, [result.emoji]: result.count }));
+        }
     }
+
+    return (
+        <div>{/* emoji buttons + counts */}</div>
+    );
 }`;
 
 function ReactionBoard({ data }) {
@@ -864,10 +874,7 @@ function ReactionBoard({ data }) {
                     </Reveal>
 
                     <Reveal delay={160} className="flex min-w-0">
-                        <div className="flex-1 min-w-0 space-y-4 flex flex-col">
-                            <CodeWindow title="Python @action" code={ACTION_CODE} lang="python" className="flex-1" />
-                            <CodeWindow title="React client" code={ACTION_CLIENT_CODE} lang="js" />
-                        </div>
+                        <CodeWindow title="pages/playground.pyx" code={ACTION_PYX_CODE} lang="pyx" className="flex-1" />
                     </Reveal>
                 </div>
             </div>
