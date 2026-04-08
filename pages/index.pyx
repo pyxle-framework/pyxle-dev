@@ -62,7 +62,6 @@ async def subscribe_newsletter(request):
     return {"message": "You're on the list! We'll keep you posted."}
 
 
-# --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
 import { useAction, Link, Head } from 'pyxle/client';
@@ -640,8 +639,6 @@ const DEMO_CODE = `# pages/dashboard.pyx
 
 from pyxle.runtime import server
 
-HEAD = '<title>Dashboard</title>'
-
 @server
 async def load_dashboard(request):
     user = await db.get_user(request.state.user_id)
@@ -657,6 +654,7 @@ export default function Dashboard({ data }) {
     return (
         <main className="p-8">
             <Head>
+                <title>Dashboard</title>
                 <meta name="robots" content="noindex" />
             </Head>
             <h1>Welcome back, {user.name}</h1>

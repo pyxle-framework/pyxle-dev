@@ -68,7 +68,6 @@ async def transform_text(request):
     return {"ok": True, "result": fn(text), "mode": mode}
 
 
-# --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.jsx';
 import { useAction, Link, refresh, Head } from 'pyxle/client';
@@ -514,8 +513,6 @@ function Hero({ data }) {
 
 const PYX_DEMO_CODE = `from pyxle import __version__
 
-HEAD = '<title>My Dashboard</title>'
-
 @server
 async def load_dashboard(request):
     user = await get_current_user(request)
@@ -528,27 +525,29 @@ async def update_settings(request):
     await save_settings(request.state.user_id, body)
     return {"ok": True, "message": "Settings saved"}
 
-# --- client ---
 import React from 'react';
-import { useAction } from 'pyxle/client';
+import { Head, useAction } from 'pyxle/client';
 
 export default function Dashboard({ data }) {
     const save = useAction('update_settings');
 
     return (
-        <div>
+        <>
+            <Head>
+                <title>My Dashboard</title>
+            </Head>
             <h1>Welcome, {data.user}</h1>
             <StatsGrid stats={data.stats} />
             <SettingsForm onSave={save} />
-        </div>
+        </>
     );
 }`;
 
 const FORMAT_ANNOTATIONS = [
-    { marker: 'HEAD', color: 'text-cyan-400', desc: 'Static or dynamic document head. Strings, lists, or a lambda that receives loader data.', lines: [2] },
-    { marker: '@server', color: 'text-yellow-400', desc: 'Async Python function that fetches data. Receives a Starlette Request, returns a dict. It becomes React props.', lines: [4, 5, 6, 7, 8] },
-    { marker: '@action', color: 'text-yellow-400', desc: 'Server mutation callable from the browser. useAction() sends a POST, Python processes it, result comes back as JSON.', lines: [10, 11, 12, 13, 14] },
-    { marker: 'export default', color: 'text-blue-400', desc: 'Standard React component. Receives { data } from the loader. Server-rendered, then hydrated on the client.', lines: [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29] },
+    { marker: '@server', color: 'text-yellow-400', desc: 'Async Python function that fetches data. Receives a Starlette Request, returns a dict. It becomes React props.', lines: [2, 3, 4, 5, 6] },
+    { marker: '@action', color: 'text-yellow-400', desc: 'Server mutation callable from the browser. useAction() sends a POST, Python processes it, result comes back as JSON.', lines: [8, 9, 10, 11, 12] },
+    { marker: 'export default', color: 'text-blue-400', desc: 'Standard React component. Receives { data } from the loader. Server-rendered, then hydrated on the client.', lines: [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30] },
+    { marker: '<Head>', color: 'text-cyan-400', desc: 'Controls the document head. Drop it anywhere in your component tree — title, meta, link, script. Dynamic values use normal JSX interpolation.', lines: [22, 23, 24] },
 ];
 
 function HighlightedCodeWithLines({ code, lang = 'pyx', highlightLines = [] }) {
