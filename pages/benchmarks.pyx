@@ -4,7 +4,6 @@ async def load_benchmarks(request):
     return {"version": __version__}
 
 
-# --- client ---
 import React, { useState } from 'react';
 import { useTheme } from './layout.jsx';
 import { Link, Head } from 'pyxle/client';

@@ -60,7 +60,6 @@ async def search_docs(request):
     return {"results": results}
 
 
-# --- client ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from '../layout.pyx';
 import { Link, navigate, useAction, Head } from 'pyxle/client';

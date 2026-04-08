@@ -1,4 +1,3 @@
-# --- client ---
 import React from 'react';
 import { Link, Head } from 'pyxle/client';
 import { useTheme } from './layout.jsx';
