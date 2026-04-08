@@ -21,7 +21,11 @@ export default function RootLayout({ children }) {
     useEffect(() => {
         document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(theme);
-        document.documentElement.style.overflowX = 'hidden';
+        // Use `overflow-x: clip` (NOT `hidden`) so that descendants with
+        // `position: sticky` keep working. `hidden` creates a new scroll
+        // container which breaks sticky; `clip` prevents horizontal
+        // overflow the same way visually without breaking sticky.
+        document.documentElement.style.overflowX = 'clip';
         if (typeof localStorage !== 'undefined') localStorage.setItem('pyxle-theme', theme);
     }, [theme]);
 
@@ -29,7 +33,7 @@ export default function RootLayout({ children }) {
 
     return (
         <ThemeContext.Provider value={{ theme, toggle }}>
-            <div className={`min-h-screen overflow-x-hidden antialiased transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0a0a0b] text-white' : 'bg-white text-zinc-900'}`}>
+            <div className={`min-h-screen overflow-x-clip antialiased transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0a0a0b] text-white' : 'bg-white text-zinc-900'}`}>
                 {children}
             </div>
         </ThemeContext.Provider>
