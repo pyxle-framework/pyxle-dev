@@ -488,14 +488,22 @@ function Hero({ initialClicks }) {
 
             <div className="relative z-10 max-w-5xl">
                 <Reveal>
-                    <div className={`mb-2 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm ${
-                        theme === 'dark'
-                            ? 'border-white/10 bg-white/5 text-zinc-400'
-                            : 'border-zinc-200 bg-zinc-100 text-zinc-600'
-                    }`}>
-                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                        Open Source &middot; MIT Licensed
-                    </div>
+                    <a
+                        href="#agents"
+                        onClick={(e) => scrollToSection(e, 'agents')}
+                        aria-label="Pyxle: the framework AI coding agents love"
+                        className={`group mb-2 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition ${
+                            theme === 'dark'
+                                ? 'border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 text-emerald-300 hover:border-emerald-500/50'
+                                : 'border-emerald-500/40 bg-gradient-to-r from-emerald-50 via-cyan-50 to-blue-50 text-emerald-700 hover:border-emerald-500/60'
+                        }`}
+                    >
+                        <span aria-hidden="true">✨</span>
+                        The framework AI coding agents love
+                        <svg className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </a>
                     <div className="mb-6" />
                 </Reveal>
 
@@ -1014,7 +1022,144 @@ function HowItWorks() {
     );
 }
 
-/* ── built for AI ────────────────────────────────────────── */
+/* ── built for agents ────────────────────────────────────── */
+
+const AGENT_PROPS = [
+    {
+        title: "Python, the language LLMs know best",
+        desc: "Every frontier LLM has seen more Python than any other language. Your agent stays in its highest-confidence mode for the entire backend — and the entire AI SDK ecosystem (Anthropic, OpenAI, LangChain, instructor) is Python-first anyway.",
+        icon: "M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z",
+    },
+    {
+        title: "One file per feature, zero context-switching",
+        desc: "Loader, mutation, and React component in a single .pyx file. An agent reads one file to understand the whole feature — no cross-file consistency risk, no TypeScript/Python type-sync drama, no 7-file edits for a CRUD screen.",
+        icon: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z",
+    },
+    {
+        title: "Five commands, zero magic",
+        desc: "init, dev, check, build, serve. That's the whole vocabulary. Decorators set one attribute and return — no DI, no metaclass, no runtime patching. The code you see is the code that runs, which means the agent's mental model matches reality.",
+        icon: "M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z",
+    },
+    {
+        title: "Machine-parseable errors from pyxle check",
+        desc: "[section] line N: message, one file per line, exit code 0 or 1. Every diagnostic is grep-friendly. One bad file never aborts the scan, and downstream JSX cascades are suppressed automatically. Your agent's edit → check → fix loop stays tight and high-signal.",
+        icon: "M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z",
+    },
+    {
+        title: "File-based routing = agent-friendly config",
+        desc: "ls pages/ tells the agent every route in the project. No urls.py to maintain, no router.ts to keep in sync. The filesystem is the configuration — which means zero tokens spent reading routing files.",
+        icon: "M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z",
+    },
+    {
+        title: "Fully documented architecture",
+        desc: "11 architecture deep-dives covering the parser, compiler, SSR, routing, build, runtime, and CLI. Point your agent at /docs/architecture once and it has the whole mental model — no need to grep source code to answer framework questions.",
+        icon: "M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25",
+    },
+];
+
+function BuiltForAgents() {
+    const { theme } = useTheme();
+    return (
+        <section id="agents" className="relative overflow-hidden px-6 py-24">
+            <GradientOrb className="h-[500px] w-[500px] top-20 right-0 bg-emerald-600" />
+            <GradientOrb className="h-[400px] w-[400px] bottom-10 left-10 bg-cyan-500" />
+            <div className="relative z-10 mx-auto max-w-6xl">
+                <Reveal>
+                    <div className="text-center mb-14">
+                        <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">
+                            For AI coding agents
+                        </p>
+                        <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                            The framework{' '}
+                            <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                                AI agents love
+                            </span>
+                        </h2>
+                        <p className={`mx-auto mt-5 max-w-2xl text-base sm:text-lg leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                            Python backend. React frontend. One file per feature. Tiny CLI surface, zero magic, grep-parseable errors. Built so Claude, Cursor, and Copilot can ship real features with a fraction of the context, files, and cross-language glue that traditional full-stack frameworks demand.
+                        </p>
+                    </div>
+                </Reveal>
+
+                {/* File-count comparison strip */}
+                <Reveal delay={100}>
+                    <div className={`mx-auto mb-14 max-w-3xl rounded-xl border overflow-hidden ${
+                        theme === 'dark' ? 'border-white/10 bg-white/[0.02]' : 'border-zinc-200 bg-white'
+                    }`}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-white/5">
+                            <div className="p-6 text-center">
+                                <p className={`text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                    Typical stack
+                                </p>
+                                <p className="mt-2 text-3xl font-bold text-zinc-400">
+                                    4–7 files
+                                </p>
+                                <p className={`mt-1 text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                    per feature. Two languages.
+                                </p>
+                            </div>
+                            <div className="p-6 text-center">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                                    Pyxle
+                                </p>
+                                <p className="mt-2 text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                                    1 file
+                                </p>
+                                <p className={`mt-1 text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                                    Python + JSX colocated.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </Reveal>
+
+                {/* Agent property cards */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {AGENT_PROPS.map((prop, i) => (
+                        <Reveal key={prop.title} delay={i * 80}>
+                            <div className={`h-full rounded-xl border p-6 ${
+                                theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-zinc-200 bg-white'
+                            }`}>
+                                <div className={`inline-flex rounded-lg border p-2.5 text-emerald-400 mb-4 ${
+                                    theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-zinc-50'
+                                }`}>
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d={prop.icon} />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-semibold mb-2">{prop.title}</h3>
+                                <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                                    {prop.desc}
+                                </p>
+                            </div>
+                        </Reveal>
+                    ))}
+                </div>
+
+                {/* CTA to the long-form doc */}
+                <Reveal delay={500}>
+                    <div className="mt-14 text-center">
+                        <Link
+                            href="/docs/guides/for-ai-agents"
+                            className={`inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-semibold transition-colors ${
+                                theme === 'dark'
+                                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20'
+                                    : 'border-emerald-500/40 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                            }`}
+                        >
+                            Read the full case: Pyxle for AI coding agents
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </Link>
+                    </div>
+                </Reveal>
+            </div>
+        </section>
+    );
+}
+
+/* ── use cases ───────────────────────────────────────────── */
 
 const USE_CASES = [
     {
@@ -1037,7 +1182,7 @@ const USE_CASES = [
     },
 ];
 
-function BuiltForAI() {
+function UseCases() {
     const { theme } = useTheme();
     return (
         <section className="relative overflow-hidden px-6 py-24">
@@ -1327,7 +1472,8 @@ export default function Page({ data }) {
             <Features />
             <Performance />
             <HowItWorks />
-            <BuiltForAI />
+            <BuiltForAgents />
+            <UseCases />
             <GetStarted />
             <Newsletter />
             <Footer />
