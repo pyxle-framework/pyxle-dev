@@ -68,6 +68,22 @@ const NAV_STRUCTURE = [
     ],
   },
   {
+    category: "Architecture",
+    slug: "architecture",
+    items: [
+      { file: "architecture/overview.md", slug: "overview" },
+      { file: "architecture/pyx-files.md", slug: "pyx-files" },
+      { file: "architecture/parser.md", slug: "parser" },
+      { file: "architecture/compiler.md", slug: "compiler" },
+      { file: "architecture/routing.md", slug: "routing" },
+      { file: "architecture/dev-server.md", slug: "dev-server" },
+      { file: "architecture/ssr.md", slug: "ssr" },
+      { file: "architecture/build-and-serve.md", slug: "build-and-serve" },
+      { file: "architecture/runtime.md", slug: "runtime" },
+      { file: "architecture/cli.md", slug: "cli" },
+    ],
+  },
+  {
     category: "Advanced",
     slug: "advanced",
     items: [
@@ -148,12 +164,18 @@ function processMarkdown(md, currentCategory = '') {
   };
 
   // Convert internal .md links to /docs/ URLs.
+  // Supports both bare links ("foo.md") and anchor-suffixed links
+  // ("foo.md#section"). Bare anchors ("#section") and directory
+  // references ("../guides/") pass through unchanged.
   renderer.link = function ({ href, title, text }) {
-    if (href && href.endsWith('.md')) {
+    const mdMatch = href && href.match(/^([^#?]+)\.md(#[^?]*)?(\?.*)?$/);
+    if (mdMatch) {
       // Resolve relative .md links to /docs/ paths.
       // e.g., "head-management.md" → "/docs/guides/head-management"
-      //        "../guides/error-handling.md" → "/docs/guides/error-handling"
-      let docPath = href.replace(/\.md$/, '');
+      //       "../guides/error-handling.md" → "/docs/guides/error-handling"
+      //       "ssr.md#head-pipeline" → "/docs/architecture/ssr#head-pipeline"
+      let docPath = mdMatch[1];
+      const anchor = mdMatch[2] || '';
       // Remove leading ../ segments and resolve to flat doc path.
       docPath = docPath.replace(/\.\.\//g, '');
       // If no directory prefix, it's a same-category reference — prepend current category.
@@ -161,7 +183,7 @@ function processMarkdown(md, currentCategory = '') {
         docPath = `${currentCategory}/${docPath}`;
       }
       const titleAttr = title ? ` title="${title}"` : '';
-      return `<a href="/docs/${docPath}"${titleAttr}>${text}</a>`;
+      return `<a href="/docs/${docPath}${anchor}"${titleAttr}>${text}</a>`;
     }
     // External or anchor links — pass through.
     const titleAttr = title ? ` title="${title}"` : '';

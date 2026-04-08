@@ -130,6 +130,62 @@
       ]
     },
     {
+      "category": "Architecture",
+      "slug": "architecture",
+      "items": [
+        {
+          "title": "Overview — A request, end to end",
+          "slug": "overview",
+          "path": "architecture/overview"
+        },
+        {
+          "title": "The .pyx file format",
+          "slug": "pyx-files",
+          "path": "architecture/pyx-files"
+        },
+        {
+          "title": "The parser",
+          "slug": "parser",
+          "path": "architecture/parser"
+        },
+        {
+          "title": "The compiler",
+          "slug": "compiler",
+          "path": "architecture/compiler"
+        },
+        {
+          "title": "Routing",
+          "slug": "routing",
+          "path": "architecture/routing"
+        },
+        {
+          "title": "The dev server",
+          "slug": "dev-server",
+          "path": "architecture/dev-server"
+        },
+        {
+          "title": "Server-side rendering",
+          "slug": "ssr",
+          "path": "architecture/ssr"
+        },
+        {
+          "title": "Build and serve",
+          "slug": "build-and-serve",
+          "path": "architecture/build-and-serve"
+        },
+        {
+          "title": "The runtime",
+          "slug": "runtime",
+          "path": "architecture/runtime"
+        },
+        {
+          "title": "The CLI",
+          "slug": "cli",
+          "path": "architecture/cli"
+        }
+      ]
+    },
+    {
       "category": "Advanced",
       "slug": "advanced",
       "items": [
@@ -216,14 +272,14 @@
       "path": "core-concepts/pyx-files",
       "category": "Core Concepts",
       "description": "A `.pyx` file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file -- your data fetching and your UI live together.",
-      "searchText": "Files A file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file your data fetching and your UI live together. Anatomy of a file A file has up to three sections: The compiler automatically detects which lines are Python and which are JSX. Python code uses / decorators, imports, and standard Python syntax. Everything else is treated as JSX. The Python section The Python section runs entirely on the server. It can: Impor",
+      "searchText": "Files A file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file your data fetching and your UI live together. Anatomy of a file A file has two sections: The compiler automatically detects which lines are Python and which are JSX. Python code uses / decorators, imports, and standard Python syntax. Everything else is treated as JSX. The Python section The Python section runs entirely on the server. It can: Import module",
       "headings": [
         "Anatomy of a .pyx file",
         "The Python section",
         "Rules for the Python section",
         "The JSX section",
         "Rules for the JSX section",
-        "The HEAD variable",
+        "Controlling the document <head>",
         "A complete example",
         "JSX-only files",
         "Next steps"
@@ -323,17 +379,21 @@
       "title": "Head Management",
       "path": "guides/head-management",
       "category": "Guides",
-      "description": "Pyxle provides three ways to control the document `<head>`: the `HEAD` Python variable, the `<Head>` JSX component, and layout-level head elements. They merge together with automatic deduplication.",
-      "searchText": "Head Management Pyxle provides three ways to control the document : the Python variable, the JSX component, and layoutlevel head elements. They merge together with automatic deduplication. The variable Define a variable in the Python section of your file: Dynamic HEAD For head content that depends on loader data, use a callable: The callable receives the loader's return value as its argument and must return a string or list of strings. XSS safety Dynamic HEAD values are automatically sanitised: ",
+      "description": "Pyxle offers two ways to control the document `<head>`: the `<Head>` component (**recommended**) and the `HEAD` Python variable. Both merge together with automatic deduplication, and either works — bu",
+      "searchText": "Head Management Pyxle offers two ways to control the document : the component (recommended) and the Python variable. Both merge together with automatic deduplication, and either works — but we recommend for almost every real page. TL;DR — use the component That's the pattern you'll use for the vast majority of pages. It reads like React, interpolates props naturally, and lives next to the body markup that depends on the same data. Why is the recommended approach It's just JSX. If you know React,",
       "headings": [
-        "The HEAD variable",
-        "Dynamic HEAD",
-        "XSS safety",
+        "TL;DR — use the <Head> component",
+        "Why <Head> is the recommended approach",
         "The <Head> component",
-        "Deduplication",
+        "Multiple <Head> blocks in one tree",
+        "Using <Head> in reusable components",
+        "The HEAD variable (lower-level alternative)",
+        "When to prefer the HEAD variable",
+        "XSS safety",
+        "Layouts and precedence",
         "Precedence order (lowest to highest)",
+        "Example: layout defaults + page overrides",
         "Deduplication rules",
-        "Example",
         "Manual deduplication keys",
         "Default title",
         "Next steps"
@@ -448,7 +508,7 @@
         "Disabling CSRF",
         "Token validation for custom fetch calls",
         "CORS configuration",
-        "HEAD element sanitisation",
+        "Head element sanitisation",
         "Best practice",
         "Security headers",
         "Environment variable safety",
@@ -532,7 +592,9 @@
         "@action",
         "LoaderError",
         "ActionError",
-        "HEAD variable",
+        "Document <head> elements",
+        "<Head> component (recommended)",
+        "HEAD variable (lower-level alternative)",
         "Explicit imports"
       ]
     },
@@ -556,6 +618,273 @@
         "navigate(path)",
         "prefetch(path)",
         "refresh()"
+      ]
+    },
+    {
+      "title": "Overview — A request, end to end",
+      "path": "architecture/overview",
+      "category": "Architecture",
+      "description": "This is the one doc to read first. We're going to follow a single HTTP request all the way from `localhost:8000/` to your browser, naming every component it touches and every transformation it goes th",
+      "searchText": "Overview — A request, end to end This is the one doc to read first. We're going to follow a single HTTP request all the way from to your browser, naming every component it touches and every transformation it goes through. By the end of this page you'll have a working mental model of the entire framework. To make it concrete, we'll trace the homepage of a fresh project — the one with a Pyxle logo and a \"You're ready to build with Pyxle\" heading. The starting point: one file Here's the file we're ",
+      "headings": [
+        "The starting point: one .pyx file",
+        "Stage 0 — pyxle dev starts",
+        "Stage 1 — The browser asks for /",
+        "Stage 2 — Run the loader",
+        "Stage 3 — Resolve the head",
+        "Stage 4 — Render the React component",
+        "Stage 5 — Assemble the document",
+        "Stage 6 — Stream the response",
+        "Stage 7 — Hydration in the browser",
+        "Stage 8 — Client-side navigation",
+        "What just happened?"
+      ]
+    },
+    {
+      "title": "The .pyx file format",
+      "path": "architecture/pyx-files",
+      "category": "Architecture",
+      "description": "A Pyxle page is a single file with two languages in it: Python and JSX. This doc explains *why* that file exists, *what's actually in it*, and",
+      "searchText": "The file format A Pyxle page is a single file with two languages in it: Python and JSX. This doc explains why that file exists, what's actually in it, and what mental model the rest of the framework uses for it. If you want to know how Pyxle splits the two languages, that's the next doc — The parser. Why one file? Web pages are the unit of work for most web developers. \"I'm working on the checkout page. I'm fixing the 404. I'm adding a settings page.\" The page is the noun. In most frameworks, th",
+      "headings": [
+        "Why one file?",
+        "What a .pyx file looks like",
+        "A pure-JSX page",
+        "A page with a server loader",
+        "A multi-section page",
+        "A page with document <head> metadata",
+        "What's *not* in a .pyx file",
+        "What the framework \"sees\"",
+        "File extension and tooling",
+        "What if I'm coming from another framework?",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "The parser",
+      "path": "architecture/parser",
+      "category": "Architecture",
+      "description": "The honest answer is: by **parsing**. The Pyxle parser feeds the source to Python's `ast.parse` and uses the structure of the result — and the structure of the failure when parsing fails — to find the",
+      "searchText": "The parser \"How does Pyxle know where the Python ends and the JSX begins?\" The honest answer is: by parsing. The Pyxle parser feeds the source to Python's and uses the structure of the result — and the structure of the failure when parsing fails — to find the boundary between the two languages. There are no fence markers, no comment directives, no perline heuristics, no whitespace conventions. There is only a walker, a greedy strategy, and a small handful of carefully chosen guardrails. This doc",
+      "headings": [
+        "The problem in one sentence",
+        "Why the obvious approaches don't work",
+        "Approach 1: keyword matching",
+        "Approach 2: explicit fence markers",
+        "Approach 3: parse it",
+        "The greedy walker",
+        "find_largest_python_at",
+        "find_jsx_end_at",
+        "The bug",
+        "The fix",
+        "The state machine",
+        "Multi-section alternation in action",
+        "Layer 2: catching broken Python in JSX segments",
+        "The false-positive guard",
+        "Cascade suppression",
+        "Layer 3: AST metadata extraction",
+        "Loaders (_detect_loader, parser.py:567-636)",
+        "Actions (_detect_actions, parser.py:639-729)",
+        "HEAD elements (_collect_head_elements, parser.py:760-800)",
+        "JSX-side metadata (_detect_script_declarations, etc.)",
+        "Diagnostics: tolerant mode",
+        "Robustness: surviving pathological input",
+        "Deep nesting → MemoryError",
+        "Null bytes and zero-width characters",
+        "Public API",
+        "Performance characteristics",
+        "How to read the source",
+        "Test coverage",
+        "What this all adds up to",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "The compiler",
+      "path": "architecture/compiler",
+      "category": "Architecture",
+      "description": "The compiler is the bridge between the parser and the rest of the framework. The parser produces an in-memory `PyxParseResult`; the compiler turns that result into **three files on disk** that the dev",
+      "searchText": "The compiler The compiler is the bridge between the parser and the rest of the framework. The parser produces an inmemory ; the compiler turns that result into three files on disk that the dev server, the SSR pipeline, and the Vite bundler all consume: This doc walks through what's in each of those files, why they exist as separate artifacts, and the small but important transformations the compiler applies along the way. Files: (70 lines) — toplevel entry (310 lines) — and the runtimeimport inje",
+      "headings": [
+        "The top-level entry: compile_file",
+        "Three artifacts, three jobs",
+        "1. The Python artifact (.py)",
+        "2. The JSX artifact (.jsx)",
+        "3. The metadata artifact (.json)",
+        "The runtime import injection pass",
+        "Why AST-aware?",
+        "The JSX import rewriter",
+        "Why a custom lexer instead of regex?",
+        "The Babel-backed JSX validator",
+        "The data flow, end to end",
+        "Stubs for \"empty\" cases",
+        "CompilationResult and PageMetadata",
+        "Why three files instead of one?",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "Routing",
+      "path": "architecture/routing",
+      "category": "Architecture",
+      "description": "Pyxle uses **file-based routing**: the path of a `.pyx` file inside your `pages/` directory *is* its URL. There is no `@app.route(\"/\")` decorator. There is no router config file. There is no list of r",
+      "searchText": "Routing Pyxle uses filebased routing: the path of a file inside your directory is its URL. There is no decorator. There is no router config file. There is no list of routes maintained by hand. The directory structure is the routing table. This doc explains how that works, exhaustively. By the end you'll know exactly which URL each file maps to, what the dynamic segment syntax means, how layouts compose, and how a request gets dispatched to the right handler. Files: (135 lines) — file path → URL ",
+      "headings": [
+        "The basic mapping",
+        "Dynamic segments — [id]",
+        "Parameter name sanitization",
+        "Catch-all segments — [...slug]",
+        "Optional catch-all — [[...slug]]",
+        "Route groups — (name)",
+        "A complete reference table",
+        "Layouts",
+        "Templates: layouts that don't persist",
+        "Error boundaries",
+        "Not-found boundaries",
+        "API routes",
+        "Action routes",
+        "How a request finds its handler",
+        "The route table",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "The dev server",
+      "path": "architecture/dev-server",
+      "category": "Architecture",
+      "description": "`pyxle dev` is the command you'll spend the most time with. It runs a Starlette ASGI app on port 8000, a Vite subprocess on port 5173, an SSR worker pool, an incremental compiler, a file watcher, and ",
+      "searchText": "The dev server is the command you'll spend the most time with. It runs a Starlette ASGI app on port 8000, a Vite subprocess on port 5173, an SSR worker pool, an incremental compiler, a file watcher, and a WebSocket error overlay — all coordinated as a single async program. This doc explains how those pieces fit together. By the end you'll understand what every line in the startup banner means, what happens when you save a file, and how to read the dev server's source code. Files (): File What it",
+      "headings": [
+        "Lifecycle in one diagram",
+        "The Starlette app",
+        "Routes",
+        "Middleware stack",
+        "Lifespan hooks",
+        "The incremental builder",
+        "When does a layout-only change trigger a page rebuild?",
+        "The watcher",
+        "Module cache invalidation",
+        "What's watched",
+        "Vite integration",
+        "Spawning Vite",
+        "Readiness probing",
+        "Auto-restart",
+        "The proxy",
+        "The metadata registry",
+        "Layout head discovery",
+        "The error overlay",
+        "How a request flows through the dev server",
+        "What the dev server is *not*",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "Server-side rendering",
+      "path": "architecture/ssr",
+      "category": "Architecture",
+      "description": "Server-side rendering (SSR) is the process of turning a `PageRoute` and an HTTP request into an HTML response. It's the part of the framework that runs on every page load — so it has to be fast, robus",
+      "searchText": "Serverside rendering Serverside rendering (SSR) is the process of turning a and an HTTP request into an HTML response. It's the part of the framework that runs on every page load — so it has to be fast, robust, and predictable. It's also the part that touches both Python (the loader) and Node.js (the React renderer), so a fair bit of the complexity lives in the bridge between the two languages. This doc walks through the SSR pipeline stage by stage. By the end you'll know exactly what happens be",
+      "headings": [
+        "The pipeline at a glance",
+        "Stage 1: importing the compiled server module",
+        "Stage 2: running the loader",
+        "Stage 3: resolving the head",
+        "Deduplication",
+        "Sanitization",
+        "Stage 4: rendering the React component",
+        "The render protocol",
+        "Subprocess mode",
+        "Worker pool mode",
+        "Why NDJSON?",
+        "Worker crash recovery",
+        "Why one renderer per request and a pool of workers, not the other way around?",
+        "Stage 5: assembling the document",
+        "Dev mode vs production mode",
+        "Stage 6: streaming the response",
+        "What about React 18 streaming SSR?",
+        "Stage 7: client-side navigation",
+        "Error handling",
+        "Performance characteristics",
+        "Public API",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "Build and serve",
+      "path": "architecture/build-and-serve",
+      "category": "Architecture",
+      "description": "`pyxle dev` is what you run during development. `pyxle build` and `pyxle serve` are what you run for production. They share most of their code with the dev server but make a few important changes:",
+      "searchText": "Build and serve is what you run during development. and are what you run for production. They share most of their code with the dev server but make a few important changes: Aspect + Vite dev server on :5173 onetime bundle, then no Vite Source compilation incremental on file change full rebuild, all at once File watcher running not running HMR / React Refresh enabled disabled Module reloading perrequest purge imported once at startup Error responses full stack trace + dev overlay generic Asset se",
+      "headings": [
+        "What pyxle build actually does",
+        "Step 1: Compile sources",
+        "Step 2: Run Vite build",
+        "Step 3: Load Vite's manifest",
+        "Step 4: Build the page manifest",
+        "Step 5: Copy into dist/",
+        "What pyxle serve does",
+        "Why is the SSR worker pool the same in production?",
+        "Stateless processes, scale horizontally",
+        "Configuration overrides for production",
+        "Other CLI flags for serve",
+        "What's in a deployable artifact?",
+        "Why a separate build step?",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "The runtime",
+      "path": "architecture/runtime",
+      "category": "Architecture",
+      "description": "The \"runtime\" of Pyxle is the **smallest module in the framework**. It contains exactly two decorators (`@server` and `@action`), two exception classes (`LoaderError` and `ActionError`), and nothing e",
+      "searchText": "The runtime The \"runtime\" of Pyxle is the smallest module in the framework. It contains exactly two decorators ( and ), two exception classes ( and ), and nothing else. The whole file is 83 lines long including blank lines and docstrings. This is on purpose. The runtime is what your application code imports — it's the contract between your code and the framework. A small contract means a small surface area for bugs, a small mental model for users, and a small attack surface for prompt injection ",
+      "headings": [
+        "What's in pyxle/runtime.py",
+        "Why so small?",
+        "What @server actually does",
+        "Why decorators at all then?",
+        "The exception types",
+        "Why two exception types?",
+        "The zero-dependency rule",
+        "How the framework actually finds your loader",
+        "What if I need *real* request middleware?",
+        "What if I want to test my loader?",
+        "A note on async",
+        "Where to read next"
+      ]
+    },
+    {
+      "title": "The CLI",
+      "path": "architecture/cli",
+      "category": "Architecture",
+      "description": "`pyxle` is the command-line entry point users actually type. It's a",
+      "searchText": "The CLI is the commandline entry point users actually type. It's a Typer application with five commands: Command Purpose Scaffold a new Pyxle project Run the development server Compile and bundle for production Serve a production build Validate the project without serving This doc explains what each command does, how flags and configuration flow from user input to the rest of the framework, and the design choices behind the CLI surface. Files: (1220 lines) — the Typer commands (115 lines) — scaf",
+      "headings": [
+        "Configuration precedence",
+        "pyxle init <name>",
+        "Why does the scaffold ship with the framework?",
+        "pyxle dev [path]",
+        "Flags",
+        "What it does",
+        "Tailwind handling",
+        "pyxle build [path]",
+        "Flags",
+        "What it does",
+        "The lazy import pattern",
+        "pyxle serve [path]",
+        "Flags",
+        "What it does",
+        "--skip-build is for CI",
+        "pyxle check [path]",
+        "What it checks",
+        "Tolerant mode",
+        "Defensive per-file wrapping",
+        "Cascade suppression",
+        "Exit codes",
+        "The ConsoleLogger",
+        "How a CLI invocation flows",
+        "Why Typer?",
+        "Where to read next"
       ]
     },
     {
@@ -729,6 +1058,46 @@
     "reference/client-api": {
       "title": "Client API Reference",
       "category": "Reference"
+    },
+    "architecture/overview": {
+      "title": "Overview — A request, end to end",
+      "category": "Architecture"
+    },
+    "architecture/pyx-files": {
+      "title": "The .pyx file format",
+      "category": "Architecture"
+    },
+    "architecture/parser": {
+      "title": "The parser",
+      "category": "Architecture"
+    },
+    "architecture/compiler": {
+      "title": "The compiler",
+      "category": "Architecture"
+    },
+    "architecture/routing": {
+      "title": "Routing",
+      "category": "Architecture"
+    },
+    "architecture/dev-server": {
+      "title": "The dev server",
+      "category": "Architecture"
+    },
+    "architecture/ssr": {
+      "title": "Server-side rendering",
+      "category": "Architecture"
+    },
+    "architecture/build-and-serve": {
+      "title": "Build and serve",
+      "category": "Architecture"
+    },
+    "architecture/runtime": {
+      "title": "The runtime",
+      "category": "Architecture"
+    },
+    "architecture/cli": {
+      "title": "The CLI",
+      "category": "Architecture"
     },
     "advanced/ssr-pipeline": {
       "title": "SSR Pipeline",
