@@ -100,6 +100,11 @@
           "title": "Deployment",
           "slug": "deployment",
           "path": "guides/deployment"
+        },
+        {
+          "title": "Pyxle for AI coding agents",
+          "slug": "for-ai-agents",
+          "path": "guides/for-ai-agents"
         }
       ]
     },
@@ -535,6 +540,48 @@
         "Health checks",
         "SSR workers",
         "Checklist",
+        "Next steps"
+      ]
+    },
+    {
+      "title": "Pyxle for AI coding agents",
+      "path": "guides/for-ai-agents",
+      "category": "Guides",
+      "description": "Copilot, whatever you use — can read, write, debug, and ship real full-stack features with a tiny fraction of the context, files, tools, and languages that traditional frameworks demand. One file per ",
+      "searchText": "Pyxle for AI coding agents TL;DR. Pyxle is built so a coding agent — Claude Code, Cursor, Copilot, whatever you use — can read, write, debug, and ship real fullstack features with a tiny fraction of the context, files, tools, and languages that traditional frameworks demand. One file per page, Python backend, React frontend, zero config, structured errors, no magic. If your workflow involves pairing with an AI agent, Pyxle is the framework most optimised for that pairing. This isn't a marketing ",
+      "headings": [
+        "The problem agents have with modern web frameworks",
+        "One page, one file, both languages",
+        "Why this matters for an AI agent specifically",
+        "1. Python is the language LLMs know best",
+        "2. Python is the language the AI ecosystem lives in",
+        "3. No magic — the code you see is the code that runs",
+        "4. Conventional file layout is the routing table",
+        "5. pyxle check gives agents structured, per-file errors",
+        "6. Tiny CLI surface",
+        "7. Async by default, enforced at compile time",
+        "8. The dev overlay shows agent-friendly errors in real time",
+        "9. The architecture is fully documented",
+        "10. No codegen, no build artifacts the agent has to maintain",
+        "A concrete comparison: shipping a feature",
+        "In Next.js + FastAPI",
+        "In Pyxle",
+        "Beyond individual features: what agents really want",
+        "Zero-config is agent-friendly config",
+        "The dev server reloads everything the right way",
+        "Error messages are written for humans *and* machines",
+        "The framework repo itself has a CLAUDE.md",
+        "Who should use Pyxle as their agent-first framework?",
+        "Python engineers shipping web apps with AI agents",
+        "ML engineers and data scientists",
+        "AI startups building LLM-heavy applications",
+        "Indie hackers using AI as their engineering team",
+        "Internal tools teams",
+        "What Pyxle is *not*",
+        "Getting your agent set up with Pyxle",
+        "1. Drop a project-level CLAUDE.md (or equivalent) in your repo",
+        "2. Give the agent access to pyxle check and the dev server logs",
+        "3. Point the agent at the architecture handbook for deep questions",
         "Next steps"
       ]
     },
@@ -1041,6 +1088,10 @@
     },
     "guides/deployment": {
       "title": "Deployment",
+      "category": "Guides"
+    },
+    "guides/for-ai-agents": {
+      "title": "Pyxle for AI coding agents",
       "category": "Guides"
     },
     "reference/cli": {
