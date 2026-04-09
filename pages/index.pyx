@@ -7,30 +7,9 @@ _EMAIL_RE = _re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
 
 @server
 async def load_home(request):
-    from db import get_home_clicks
-
     return {
         "version": __version__,
-        "clicks": get_home_clicks(),
     }
-
-
-@action
-async def click_home(request):
-    from db import check_rate_limit, get_client_ip, increment_home_clicks
-
-    client_ip = get_client_ip(request)
-    # 5 clicks per hour per IP, scoped to the home clicker only.
-    # Exhausting this bucket does not affect the newsletter form or
-    # playground reactions -- each feature has its own independent
-    # bucket keyed on (ip, scope).
-    if not check_rate_limit(client_ip, scope="click_home"):
-        raise ActionError(
-            "Rate limit reached. Please try again after 1 hour.",
-            status_code=429,
-        )
-
-    return {"clicks": increment_home_clicks()}
 
 
 @action
@@ -67,7 +46,6 @@ import { useTheme } from './layout.jsx';
 import { useAction, Link, Head } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from './components/code-highlighter.jsx';
 import { ThemeToggle } from './components/theme-toggle.jsx';
-import { HeroVisual } from './components/hero-visual.jsx';
 
 /* ── scroll animation hook ───────────────────────────────── */
 
@@ -480,10 +458,10 @@ function HeroBackground() {
     );
 }
 
-function Hero({ initialClicks }) {
+function Hero() {
     const { theme } = useTheme();
     return (
-        <section className="relative flex min-h-[100vh] flex-col items-center justify-center px-6 pt-32 pb-16 text-center overflow-hidden">
+        <section className="relative flex min-h-[100vh] flex-col items-center justify-center px-6 pt-20 pb-16 text-center overflow-hidden">
             <HeroBackground />
 
             <div className="relative z-10 max-w-5xl">
@@ -562,11 +540,46 @@ function Hero({ initialClicks }) {
                     </div>
                 </Reveal>
 
-                {/* Animated code editor + browser preview */}
+                {/* Inline mini code preview */}
                 <Reveal delay={350}>
-                    <HeroVisual initialClicks={initialClicks} />
+                    <div className={`mx-auto mt-14 max-w-lg rounded-xl border overflow-hidden text-left shadow-2xl ${
+                        theme === 'dark' ? 'border-white/10 bg-[#111113] shadow-black/40' : 'border-zinc-200 bg-[#1a1a2e] shadow-zinc-400/20'
+                    }`}>
+                        <div className={`flex items-center gap-2 border-b px-4 py-2.5 ${
+                            theme === 'dark' ? 'border-white/5' : 'border-zinc-700/30'
+                        }`}>
+                            <div className="flex gap-1.5">
+                                <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-green-500/80" />
+                            </div>
+                            <span className="text-xs text-zinc-500 font-mono ml-2">pages/index.pyx</span>
+                        </div>
+                        <pre className="p-4 text-[11px] sm:text-xs leading-relaxed font-mono overflow-x-auto">
+                            <code>
+                                <span className="text-purple-400">@server</span>{'\n'}
+                                <span className="text-purple-400">async def</span> <span className="text-blue-400">load</span>(<span className="text-zinc-300">request</span>):{'\n'}
+                                {'    '}<span className="text-purple-400">return</span> {'{'}<span className="text-emerald-300">"user"</span>: <span className="text-purple-400">await</span> db.get_user(request){'}'}
+                                {'\n\n'}
+                                <span className="text-purple-400">export default function</span> <span className="text-cyan-400">Page</span>({'{'} <span className="text-zinc-300">data</span> {'}'}) {'{'}{'\n'}
+                                {'    '}<span className="text-purple-400">return</span> {'<'}<span className="text-red-400">h1</span>{'>'}<span className="text-zinc-300">Hello, {'{'}</span><span className="text-zinc-300">data.user.name</span><span className="text-zinc-300">{'}'}</span>{'</'}<span className="text-red-400">h1</span>{'>'}{'\n'}
+                                {'}'}
+                            </code>
+                        </pre>
+                    </div>
                 </Reveal>
             </div>
+
+            <a
+                href="#why-pyxle"
+                onClick={(e) => scrollToSection(e, 'why-pyxle')}
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer"
+                aria-label="Scroll to content"
+            >
+                <svg className={`h-5 w-5 transition ${theme === 'dark' ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </a>
         </section>
     );
 }
@@ -1447,7 +1460,7 @@ export const slots = {};
 export const createSlots = () => slots;
 
 export default function Page({ data }) {
-    const { version, clicks } = data;
+    const { version } = data;
     return (
         <>
             <Head>
@@ -1466,7 +1479,7 @@ export default function Page({ data }) {
                 <meta name="twitter:image" content="https://pyxle.dev/branding/og-default.png" />
             </Head>
             <Nav version={version} />
-            <Hero initialClicks={clicks} />
+            <Hero />
             <WhyPyxle />
             <CodeShowcase />
             <Features />
