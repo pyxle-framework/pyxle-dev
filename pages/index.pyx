@@ -42,7 +42,7 @@ async def subscribe_newsletter(request):
 
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useTheme } from './layout.jsx';
+import { useTheme } from './layout.pyx';
 import { useAction, Link, Head } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from './components/code-highlighter.jsx';
 import { ThemeToggle } from './components/theme-toggle.jsx';

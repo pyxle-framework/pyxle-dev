@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Head } from 'pyxle/client';
-import { useTheme } from './layout.jsx';
+import { useTheme } from './layout.pyx';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 import NotFoundContent from './components/not-found-content.jsx';
 

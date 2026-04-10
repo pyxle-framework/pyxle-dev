@@ -5,7 +5,7 @@ async def load_benchmarks(request):
 
 
 import React, { useState } from 'react';
-import { useTheme } from './layout.jsx';
+import { useTheme } from './layout.pyx';
 import { Link, Head } from 'pyxle/client';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 

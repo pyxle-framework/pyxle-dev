@@ -69,7 +69,7 @@ async def transform_text(request):
 
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useTheme } from './layout.jsx';
+import { useTheme } from './layout.pyx';
 import { useAction, Link, refresh, Head } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from './components/code-highlighter.jsx';
 import { ThemeToggle } from './components/theme-toggle.jsx';
