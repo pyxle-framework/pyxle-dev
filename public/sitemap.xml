@@ -26,12 +26,26 @@
   <url><loc>https://pyxle.dev/docs/guides/client-components</loc><priority>0.7</priority></url>
   <url><loc>https://pyxle.dev/docs/guides/security</loc><priority>0.7</priority></url>
   <url><loc>https://pyxle.dev/docs/guides/deployment</loc><priority>0.7</priority></url>
+  <url><loc>https://pyxle.dev/docs/guides/editor-setup</loc><priority>0.7</priority></url>
+  <url><loc>https://pyxle.dev/docs/guides/for-ai-agents</loc><priority>0.7</priority></url>
 
   <!-- Reference -->
   <url><loc>https://pyxle.dev/docs/reference/cli</loc><priority>0.7</priority></url>
   <url><loc>https://pyxle.dev/docs/reference/configuration</loc><priority>0.7</priority></url>
   <url><loc>https://pyxle.dev/docs/reference/runtime-api</loc><priority>0.7</priority></url>
   <url><loc>https://pyxle.dev/docs/reference/client-api</loc><priority>0.7</priority></url>
+
+  <!-- Architecture -->
+  <url><loc>https://pyxle.dev/docs/architecture/overview</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/pyx-files</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/parser</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/compiler</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/routing</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/dev-server</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/ssr</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/build-and-serve</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/runtime</loc><priority>0.5</priority></url>
+  <url><loc>https://pyxle.dev/docs/architecture/cli</loc><priority>0.5</priority></url>
 
   <!-- Advanced -->
   <url><loc>https://pyxle.dev/docs/advanced/ssr-pipeline</loc><priority>0.5</priority></url>

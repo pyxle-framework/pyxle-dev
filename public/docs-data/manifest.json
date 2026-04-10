@@ -102,6 +102,11 @@
           "path": "guides/deployment"
         },
         {
+          "title": "Editor setup",
+          "slug": "editor-setup",
+          "path": "guides/editor-setup"
+        },
+        {
           "title": "Pyxle for AI coding agents",
           "slug": "for-ai-agents",
           "path": "guides/for-ai-agents"
@@ -541,6 +546,42 @@
         "SSR workers",
         "Checklist",
         "Next steps"
+      ]
+    },
+    {
+      "title": "Editor setup",
+      "path": "guides/editor-setup",
+      "category": "Guides",
+      "description": "Pyxle Language Tools brings first-class IDE support to `.pyx` files — syntax highlighting, diagnostics, completions, hover documentation, go-to-definition, and formatting. Everything works out of the ",
+      "searchText": "Editor setup Pyxle Language Tools brings firstclass IDE support to files — syntax highlighting, diagnostics, completions, hover documentation, gotodefinition, and formatting. Everything works out of the box with a single install. Beta release. The language toolkit is productionusable but still evolving. Report issues on GitHub. VS Code (recommended) 1. Install the extension Search for \"Pyxle\" in the VS Code Extensions panel, or install from the terminal: The extension is also available on the VS",
+      "headings": [
+        "VS Code (recommended)",
+        "1. Install the extension",
+        "2. Install the language server",
+        "Features",
+        "Syntax highlighting",
+        "Diagnostics",
+        "Completions",
+        "Hover documentation",
+        "Go-to-definition",
+        "Document symbols",
+        "Formatting",
+        "Semantic highlighting",
+        "Configuration",
+        "Using a virtual environment",
+        "CLI tools",
+        "Lint in CI",
+        "Other editors",
+        "Neovim",
+        "Sublime Text",
+        "JetBrains IDEs",
+        "Troubleshooting",
+        "\"pyxle-langserver: command not found\"",
+        "No JSX completions",
+        "No Python completions",
+        "Status bar shows \"✗ Pyxle\"",
+        "Formatting doesn't change anything",
+        "Architecture"
       ]
     },
     {
@@ -1088,6 +1129,10 @@
     },
     "guides/deployment": {
       "title": "Deployment",
+      "category": "Guides"
+    },
+    "guides/editor-setup": {
+      "title": "Editor setup",
       "category": "Guides"
     },
     "guides/for-ai-agents": {

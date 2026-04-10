@@ -55,6 +55,7 @@ const NAV_STRUCTURE = [
       { file: "guides/client-components.md", slug: "client-components" },
       { file: "guides/security.md", slug: "security" },
       { file: "guides/deployment.md", slug: "deployment" },
+      { file: "guides/editor-setup.md", slug: "editor-setup" },
       { file: "guides/for-ai-agents.md", slug: "for-ai-agents" },
     ],
   },

@@ -482,6 +482,20 @@ function Hero() {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                     </a>
+                    <Link
+                        href="/docs/guides/editor-setup"
+                        className={`group ml-2 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition ${
+                            theme === 'dark'
+                                ? 'border-purple-500/30 bg-purple-500/10 text-purple-300 hover:border-purple-500/50'
+                                : 'border-purple-500/40 bg-purple-50 text-purple-700 hover:border-purple-500/60'
+                        }`}
+                    >
+                        <span aria-hidden="true">🛠</span>
+                        VS Code Extension
+                        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            theme === 'dark' ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-600'
+                        }`}>Beta</span>
+                    </Link>
                     <div className="mb-6" />
                 </Reveal>
 
