@@ -5,7 +5,7 @@ async def load_benchmarks(request):
 
 
 import React, { useState } from 'react';
-import { useTheme } from './layout.pyx';
+import { useTheme } from './layout.pyxl';
 import { Link, Head } from 'pyxle/client';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 
@@ -178,7 +178,7 @@ function BenchNav({ version }) {
                     <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
                     <a
-                        href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/benchmarks.pyx"
+                        href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/benchmarks.pyxl"
                         target="_blank"
                         rel="noreferrer"
                         title="View page source"

@@ -24,12 +24,12 @@ Opens at http://localhost:8000. Always kill existing servers before starting a n
 
 ```
 pages/                     # File-based routes
-|-- index.pyx              # Home page (@server loader + @action subscribe)
-|-- layout.pyx             # Root layout (theme context, dark/light toggle)
-|-- not-found.pyx          # Custom 404 page (reusable with backHref/backLabel props)
-|-- benchmarks.pyx         # Benchmark results page
+|-- index.pyxl              # Home page (@server loader + @action subscribe)
+|-- layout.pyxl             # Root layout (theme context, dark/light toggle)
+|-- not-found.pyxl          # Custom 404 page (reusable with backHref/backLabel props)
+|-- benchmarks.pyxl         # Benchmark results page
 |-- docs/                  # Documentation section
-|   +-- [[...slug]].pyx    # Catch-all docs route with search (@action search_docs)
+|   +-- [[...slug]].pyxl    # Catch-all docs route with search (@action search_docs)
 |-- api/                   # API routes (plain Starlette endpoints)
 |   |-- healthz.py         # Health check — GET /api/healthz
 |   |-- subscribers.py     # Admin panel — GET /api/subscribers (HTTP Basic Auth)
@@ -54,20 +54,20 @@ This site showcases Pyxle best practices:
 - Tailwind CSS for styling
 - File-based routing under `pages/`
 
-### Newsletter Subscription (`pages/index.pyx`)
+### Newsletter Subscription (`pages/index.pyxl`)
 
 1. `@action subscribe_newsletter(request)` validates and stores email via `db.py`
 2. Client calls with `useAction("subscribe_newsletter")` from `pyxle/client`
 3. Returns `ActionError` for validation failures, JSON for success
 
-### Docs Search (`pages/docs/[[...slug]].pyx`)
+### Docs Search (`pages/docs/[[...slug]].pyxl`)
 
 - `@action search_docs` performs server-side search across docs manifest
 - Manifest is cached in a Python global (`_manifest_cache`) for performance
 - Client uses debounced `useAction` with a `searching` loading state
 - Invalid doc slugs render the `NotFoundPage` component with "Back to docs" link
 
-### Theme System (`pages/layout.pyx`)
+### Theme System (`pages/layout.pyxl`)
 
 Root layout provides `ThemeContext` with `useTheme()` hook. Theme is stored in `localStorage`.
 

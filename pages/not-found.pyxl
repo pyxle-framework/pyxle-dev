@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Head } from 'pyxle/client';
-import { useTheme } from './layout.pyx';
+import { useTheme } from './layout.pyxl';
 import { ThemeToggle } from './components/theme-toggle.jsx';
 import NotFoundContent from './components/not-found-content.jsx';
 
@@ -34,7 +34,7 @@ export default function NotFoundPage() {
                         <a href="https://github.com/pyxle-framework/pyxle" target="_blank" rel="noreferrer"
                            className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>GitHub</a>
                         <a
-                            href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/not-found.pyx"
+                            href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/not-found.pyxl"
                             target="_blank"
                             rel="noreferrer"
                             title="View page source"

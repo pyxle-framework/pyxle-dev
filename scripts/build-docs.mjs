@@ -35,7 +35,7 @@ const NAV_STRUCTURE = [
     category: "Core Concepts",
     slug: "core-concepts",
     items: [
-      { file: "core-concepts/pyx-files.md", slug: "pyx-files" },
+      { file: "core-concepts/pyxl-files.md", slug: "pyxl-files" },
       { file: "core-concepts/routing.md", slug: "routing" },
       { file: "core-concepts/data-loading.md", slug: "data-loading" },
       { file: "core-concepts/server-actions.md", slug: "server-actions" },
@@ -57,6 +57,7 @@ const NAV_STRUCTURE = [
       { file: "guides/deployment.md", slug: "deployment" },
       { file: "guides/editor-setup.md", slug: "editor-setup" },
       { file: "guides/for-ai-agents.md", slug: "for-ai-agents" },
+      { file: "guides/migration-pyx-to-pyxl.md", slug: "migration-pyx-to-pyxl" },
     ],
   },
   {
@@ -74,7 +75,7 @@ const NAV_STRUCTURE = [
     slug: "architecture",
     items: [
       { file: "architecture/overview.md", slug: "overview" },
-      { file: "architecture/pyx-files.md", slug: "pyx-files" },
+      { file: "architecture/pyxl-files.md", slug: "pyxl-files" },
       { file: "architecture/parser.md", slug: "parser" },
       { file: "architecture/compiler.md", slug: "compiler" },
       { file: "architecture/routing.md", slug: "routing" },

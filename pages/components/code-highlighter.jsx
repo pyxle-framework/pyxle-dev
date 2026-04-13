@@ -1,7 +1,7 @@
 /**
  * Shared syntax highlighting for Pyxle docs and homepage.
  *
- * Supports: python, pyx, javascript/jsx/tsx, bash/shell, json, html/xml
+ * Supports: python, pyxl, javascript/jsx/tsx, bash/shell, json, html/xml
  * Returns an array of { text, className } spans for a given line.
  */
 
@@ -253,8 +253,8 @@ export function tokenizeLine(line, lang) {
             return tokenizeBash(line);
         case 'json': return tokenizeJSON(line);
         case 'html': case 'xml': return tokenizeJS(line); // reuse JSX for HTML tags
-        case 'pyx':
-            // For .pyx: auto-detect Python vs JSX based on content
+        case 'pyxl':
+            // For .pyxl: auto-detect Python vs JSX based on content
             if (line.match(/^(import React|export |<[\w])/)) return tokenizeJS(line);
             return tokenizePython(line);
         default:
@@ -263,17 +263,17 @@ export function tokenizeLine(line, lang) {
 }
 
 /**
- * Tokenize a full block of code. For pyx, auto-switches between
+ * Tokenize a full block of code. For pyxl, auto-switches between
  * Python and JSX mode at the boundary.
  */
 export function tokenizeBlock(code, lang) {
     const lines = code.split('\n');
-    let mode = lang === 'pyx' ? 'python' : lang;
+    let mode = lang === 'pyxl' ? 'python' : lang;
     return lines.map((line) => {
-        if (lang === 'pyx' && mode === 'python' && line.match(/^import React/)) {
+        if (lang === 'pyxl' && mode === 'python' && line.match(/^import React/)) {
             mode = 'jsx';
         }
-        const effectiveLang = lang === 'pyx' ? mode : lang;
+        const effectiveLang = lang === 'pyxl' ? mode : lang;
         return tokenizeLine(line, effectiveLang);
     });
 }

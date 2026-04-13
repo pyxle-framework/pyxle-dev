@@ -2,7 +2,7 @@
 module.exports = {
     darkMode: 'class',
     content: [
-        "./pages/**/*.{pyx,js,jsx,ts,tsx}",
+        "./pages/**/*.{pyxl,js,jsx,ts,tsx}",
         "./.pyxle-build/client/pages/**/*.{js,jsx,ts,tsx}",
     ],
     theme: {

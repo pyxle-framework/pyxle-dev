@@ -61,7 +61,7 @@ async def search_docs(request):
 
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useTheme } from '../layout.pyx';
+import { useTheme } from '../layout.pyxl';
 import { Link, navigate, useAction, Head } from 'pyxle/client';
 import { tokenizeBlock, HIGHLIGHT_CSS } from '../components/code-highlighter.jsx';
 import { ThemeToggle } from '../components/theme-toggle.jsx';
@@ -626,7 +626,7 @@ export default function DocsPage({ data }) {
                             GitHub
                         </a>
                         <a
-                            href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/docs/%5B%5B...slug%5D%5D.pyx"
+                            href="https://github.com/pyxle-framework/pyxle-dev/blob/main/pages/docs/%5B%5B...slug%5D%5D.pyxl"
                             target="_blank"
                             rel="noreferrer"
                             title="View page source"

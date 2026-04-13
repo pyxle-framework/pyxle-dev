@@ -138,7 +138,7 @@ function FloatingParticles() {
 
 /**
  * Headless 404 content component — renders the 404 body without any header/nav.
- * Used by both not-found.pyx (standalone) and docs/[[...slug]].pyx (embedded).
+ * Used by both not-found.pyxl (standalone) and docs/[[...slug]].pyxl (embedded).
  *
  * Props:
  *   backHref  — where the "Back to ..." button links (default: "/")

@@ -26,9 +26,9 @@
       "slug": "core-concepts",
       "items": [
         {
-          "title": ".pyx Files",
-          "slug": "pyx-files",
-          "path": "core-concepts/pyx-files"
+          "title": ".pyxl Files",
+          "slug": "pyxl-files",
+          "path": "core-concepts/pyxl-files"
         },
         {
           "title": "Routing",
@@ -110,6 +110,11 @@
           "title": "Pyxle for AI coding agents",
           "slug": "for-ai-agents",
           "path": "guides/for-ai-agents"
+        },
+        {
+          "title": "Migrating from .pyx to .pyxl",
+          "slug": "migration-pyx-to-pyxl",
+          "path": "guides/migration-pyx-to-pyxl"
         }
       ]
     },
@@ -149,9 +154,9 @@
           "path": "architecture/overview"
         },
         {
-          "title": "The .pyx file format",
-          "slug": "pyx-files",
-          "path": "architecture/pyx-files"
+          "title": "The .pyxl file format",
+          "slug": "pyxl-files",
+          "path": "architecture/pyxl-files"
         },
         {
           "title": "The parser",
@@ -268,8 +273,8 @@
         "public/",
         ".pyxle-build/ (generated at runtime)",
         "Key files",
-        "pages/index.pyx",
-        "pages/layout.pyx",
+        "pages/index.pyxl",
+        "pages/layout.pyxl",
         "pages/api/pulse.py",
         "pyxle.config.json",
         "package.json",
@@ -278,13 +283,13 @@
       ]
     },
     {
-      "title": ".pyx Files",
-      "path": "core-concepts/pyx-files",
+      "title": ".pyxl Files",
+      "path": "core-concepts/pyxl-files",
       "category": "Core Concepts",
-      "description": "A `.pyx` file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file -- your data fetching and your UI live together.",
+      "description": "A `.pyxl` file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file -- your data fetching and your UI live together.",
       "searchText": "Files A file is the fundamental building block of a Pyxle application. It combines Python server logic with a React component in a single file your data fetching and your UI live together. Anatomy of a file A file has two sections: The compiler automatically detects which lines are Python and which are JSX. Python code uses / decorators, imports, and standard Python syntax. Everything else is treated as JSX. The Python section The Python section runs entirely on the server. It can: Import module",
       "headings": [
-        "Anatomy of a .pyx file",
+        "Anatomy of a .pyxl file",
         "The Python section",
         "Rules for the Python section",
         "The JSX section",
@@ -413,7 +418,7 @@
       "title": "API Routes",
       "path": "guides/api-routes",
       "category": "Guides",
-      "description": "Files under `pages/api/` are API endpoints. They are plain Python files (not `.pyx`) that handle HTTP requests and return JSON or other responses.",
+      "description": "Files under `pages/api/` are API endpoints. They are plain Python files (not `.pyxl`) that handle HTTP requests and return JSON or other responses.",
       "searchText": "API Routes Files under are API endpoints. They are plain Python files (not ) that handle HTTP requests and return JSON or other responses. Basic API route Create : This responds to : HTTP methods Define functions named after HTTP methods: Supported methods: , , , , , . Requests to unsupported methods return . Using HTTPEndpoint classes For more structure, use Starlette's : Dynamic API routes Use the same bracket syntax as page routes: Reading request bodies Error responses Return appropriate HTT",
       "headings": [
         "Basic API route",
@@ -474,10 +479,10 @@
         "LoaderError parameters",
         "ActionError",
         "ActionError parameters",
-        "Error boundaries (error.pyx)",
+        "Error boundaries (error.pyxl)",
         "Error props",
         "Boundary resolution",
-        "Not-found pages (not-found.pyx)",
+        "Not-found pages (not-found.pyxl)",
         "Dev mode error overlay",
         "Next steps"
       ]
@@ -552,7 +557,7 @@
       "title": "Editor setup",
       "path": "guides/editor-setup",
       "category": "Guides",
-      "description": "Pyxle Language Tools brings first-class IDE support to `.pyx` files — syntax highlighting, diagnostics, completions, hover documentation, go-to-definition, and formatting. Everything works out of the ",
+      "description": "Pyxle Language Tools brings first-class IDE support to `.pyxl` files — syntax highlighting, diagnostics, completions, hover documentation, go-to-definition, and formatting. Everything works out of the",
       "searchText": "Editor setup Pyxle Language Tools brings firstclass IDE support to files — syntax highlighting, diagnostics, completions, hover documentation, gotodefinition, and formatting. Everything works out of the box with a single install. Beta release. The language toolkit is productionusable but still evolving. Report issues on GitHub. VS Code (recommended) 1. Install the extension Search for \"Pyxle\" in the VS Code Extensions panel, or install from the terminal: The extension is also available on the VS",
       "headings": [
         "VS Code (recommended)",
@@ -627,6 +632,23 @@
       ]
     },
     {
+      "title": "Migrating from .pyx to .pyxl",
+      "path": "guides/migration-pyx-to-pyxl",
+      "category": "Guides",
+      "description": "Pyxle's file extension has changed from `.pyx` to `.pyxl`. This guide explains why and how to update your project.",
+      "searchText": "Migrating from to Pyxle's file extension has changed from to . This guide explains why and how to update your project. Why the change? The extension is already used by Cython, a wellestablished Python compiler. This collision caused real problems: GitHub misclassification — GitHub's linguist identifies files as Cython, causing repository language stats to show \"Cython\" instead of \"Pyxle.\" IDE conflicts — VS Code, JetBrains, and other editors default to Cython syntax highlighting when opening fil",
+      "headings": [
+        "Why the change?",
+        "What changed?",
+        "How to migrate",
+        "1. Rename all .pyx files to .pyxl",
+        "2. Update imports between pages",
+        "3. Update the VS Code extension",
+        "4. Verify",
+        "Timeline"
+      ]
+    },
+    {
       "title": "CLI Reference",
       "path": "reference/cli",
       "category": "Reference",
@@ -673,7 +695,7 @@
       "title": "Runtime API Reference",
       "path": "reference/runtime-api",
       "category": "Reference",
-      "description": "The `pyxle.runtime` module provides decorators and error classes used in `.pyx` files. These are automatically available in the Python section of every `.pyx` file -- you do not need to import them (t",
+      "description": "The `pyxle.runtime` module provides decorators and error classes used in `.pyxl` files. These are automatically available in the Python section of every `.pyxl` file -- you do not need to import them ",
       "searchText": "Runtime API Reference The module provides decorators and error classes used in files. These are automatically available in the Python section of every file you do not need to import them (the compiler injects the import). Marks an async function as a page data loader. Behaviour: Attaches to the function (no wrapping) The function must be (enforced at compile time) Receives a Starlette [](https://www.starlette.io/requests/) object Must return a JSONserializable Can return a tuple to set the HTTP ",
       "headings": [
         "@server",
@@ -715,7 +737,7 @@
       "description": "This is the one doc to read first. We're going to follow a single HTTP request all the way from `localhost:8000/` to your browser, naming every component it touches and every transformation it goes th",
       "searchText": "Overview — A request, end to end This is the one doc to read first. We're going to follow a single HTTP request all the way from to your browser, naming every component it touches and every transformation it goes through. By the end of this page you'll have a working mental model of the entire framework. To make it concrete, we'll trace the homepage of a fresh project — the one with a Pyxle logo and a \"You're ready to build with Pyxle\" heading. The starting point: one file Here's the file we're ",
       "headings": [
-        "The starting point: one .pyx file",
+        "The starting point: one .pyxl file",
         "Stage 0 — pyxle dev starts",
         "Stage 1 — The browser asks for /",
         "Stage 2 — Run the loader",
@@ -729,19 +751,19 @@
       ]
     },
     {
-      "title": "The .pyx file format",
-      "path": "architecture/pyx-files",
+      "title": "The .pyxl file format",
+      "path": "architecture/pyxl-files",
       "category": "Architecture",
       "description": "A Pyxle page is a single file with two languages in it: Python and JSX. This doc explains *why* that file exists, *what's actually in it*, and",
       "searchText": "The file format A Pyxle page is a single file with two languages in it: Python and JSX. This doc explains why that file exists, what's actually in it, and what mental model the rest of the framework uses for it. If you want to know how Pyxle splits the two languages, that's the next doc — The parser. Why one file? Web pages are the unit of work for most web developers. \"I'm working on the checkout page. I'm fixing the 404. I'm adding a settings page.\" The page is the noun. In most frameworks, th",
       "headings": [
         "Why one file?",
-        "What a .pyx file looks like",
+        "What a .pyxl file looks like",
         "A pure-JSX page",
         "A page with a server loader",
         "A multi-section page",
         "A page with document <head> metadata",
-        "What's *not* in a .pyx file",
+        "What's *not* in a .pyxl file",
         "What the framework \"sees\"",
         "File extension and tooling",
         "What if I'm coming from another framework?",
@@ -815,7 +837,7 @@
       "title": "Routing",
       "path": "architecture/routing",
       "category": "Architecture",
-      "description": "Pyxle uses **file-based routing**: the path of a `.pyx` file inside your `pages/` directory *is* its URL. There is no `@app.route(\"/\")` decorator. There is no router config file. There is no list of r",
+      "description": "Pyxle uses **file-based routing**: the path of a `.pyxl` file inside your `pages/` directory *is* its URL. There is no `@app.route(\"/\")` decorator. There is no router config file. There is no list of ",
       "searchText": "Routing Pyxle uses filebased routing: the path of a file inside your directory is its URL. There is no decorator. There is no router config file. There is no list of routes maintained by hand. The directory structure is the routing table. This doc explains how that works, exhaustively. By the end you'll know exactly which URL each file maps to, what the dynamic segment syntax means, how layouts compose, and how a request gets dispatched to the right handler. Files: (135 lines) — file path → URL ",
       "headings": [
         "The basic mapping",
@@ -998,7 +1020,7 @@
       "title": "Compiler Internals",
       "path": "advanced/compiler-internals",
       "category": "Advanced",
-      "description": "The Pyxle compiler transforms `.pyx` files into separate Python and JSX artifacts. This document explains how the compilation process works.",
+      "description": "The Pyxle compiler transforms `.pyxl` files into separate Python and JSX artifacts. This document explains how the compilation process works.",
       "searchText": "Compiler Internals The Pyxle compiler transforms files into separate Python and JSX artifacts. This document explains how the compilation process works. Compilation overview When you run or , the compiler: 1. Scans the directory for files 2. Parses each file to separate Python from JSX 3. Writes serverside Python modules to 4. Writes clientside JSX modules to 5. Generates layout composition wrappers in 6. Creates a Vite configuration at The parser The parser () is a statemachine that classifies ",
       "headings": [
         "Compilation overview",
@@ -1019,7 +1041,7 @@
       "title": "Frequently Asked Questions",
       "path": "faq",
       "category": "FAQ",
-      "description": "Pyxle is a Python-first full-stack web framework. It combines Python server logic with React components in `.pyx` files, providing file-based routing, server-side rendering, and a development experien",
+      "description": "Pyxle is a Python-first full-stack web framework. It combines Python server logic with React components in `.pyxl` files, providing file-based routing, server-side rendering, and a development experie",
       "searchText": "Frequently Asked Questions General What is Pyxle? Pyxle is a Pythonfirst fullstack web framework. It combines Python server logic with React components in files, providing filebased routing, serverside rendering, and a development experience inspired by Next.js. How is Pyxle different from Next.js? Next.js uses JavaScript/TypeScript for both server and client code. Pyxle uses Python for server logic (data fetching, mutations, API routes) and React for the UI. If your team prefers Python for back",
       "headings": [
         "General",
@@ -1029,8 +1051,8 @@
         "Is Pyxle production-ready?",
         "What Python version do I need?",
         "What Node.js version do I need?",
-        ".pyx files",
-        "Can I use TypeScript in .pyx files?",
+        ".pyxl files",
+        "Can I use TypeScript in .pyxl files?",
         "Can I import Python code in the JSX section?",
         "Can I use any React library?",
         "Can I have multiple loaders in one file?",
@@ -1075,8 +1097,8 @@
       "title": "Project Structure",
       "category": "Getting Started"
     },
-    "core-concepts/pyx-files": {
-      "title": ".pyx Files",
+    "core-concepts/pyxl-files": {
+      "title": ".pyxl Files",
       "category": "Core Concepts"
     },
     "core-concepts/routing": {
@@ -1139,6 +1161,10 @@
       "title": "Pyxle for AI coding agents",
       "category": "Guides"
     },
+    "guides/migration-pyx-to-pyxl": {
+      "title": "Migrating from .pyx to .pyxl",
+      "category": "Guides"
+    },
     "reference/cli": {
       "title": "CLI Reference",
       "category": "Reference"
@@ -1159,8 +1185,8 @@
       "title": "Overview — A request, end to end",
       "category": "Architecture"
     },
-    "architecture/pyx-files": {
-      "title": "The .pyx file format",
+    "architecture/pyxl-files": {
+      "title": "The .pyxl file format",
       "category": "Architecture"
     },
     "architecture/parser": {
