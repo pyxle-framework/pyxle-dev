@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import base64
 import csv
+import hmac
 import io
 import os
 from html import escape
@@ -27,9 +28,14 @@ def _check_auth(request: Request) -> bool:
     try:
         decoded = base64.b64decode(auth[6:]).decode("utf-8")
         user, password = decoded.split(":", 1)
-        return user == _USERNAME and password == _PASSWORD
     except Exception:
         return False
+    # Constant-time comparison defeats remote timing attacks against the
+    # credential check. Must evaluate BOTH comparisons every call (no short-
+    # circuit) so the total time is independent of which field is wrong.
+    user_ok = hmac.compare_digest(user, _USERNAME)
+    password_ok = hmac.compare_digest(password, _PASSWORD)
+    return user_ok and password_ok
 
 
 def _require_auth() -> Response:

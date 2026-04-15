@@ -17,15 +17,40 @@ def _read_manifest():
     return _manifest_cache
 
 
+def _is_safe_slug(slug: str) -> bool:
+    """Reject anything that looks like a path-traversal attempt.
+
+    Starlette's routing normalises most of these already, but defence-in-depth
+    is cheap: we reject leading slashes, '..' segments, backslashes, and
+    control characters before the value is joined with DOCS_DIR.
+    """
+    if not slug:
+        return True
+    if "\\" in slug or "\0" in slug:
+        return False
+    if slug.startswith("/") or slug.startswith("."):
+        return False
+    parts = slug.split("/")
+    return all(part and part != ".." for part in parts)
+
+
 @server
 async def load_docs(request):
     slug = request.path_params.get("slug", "") or "getting-started/installation"
+    if not _is_safe_slug(slug):
+        return {"version": __version__, "slug": slug, "page": None, "nav": [], "notFound": True}
 
     manifest = _read_manifest()
     if manifest is None:
         return {"version": __version__, "slug": slug, "page": None, "nav": []}
 
     page_path = DOCS_DIR / f"{slug}.json"
+    try:
+        page_path = page_path.resolve(strict=False)
+        page_path.relative_to(DOCS_DIR.resolve())
+    except (ValueError, OSError):
+        return {"version": __version__, "slug": slug, "page": None, "nav": manifest["nav"], "notFound": True}
+
     if not page_path.exists():
         return {"version": __version__, "slug": slug, "page": None, "nav": manifest["nav"], "notFound": True}
 
@@ -36,8 +61,28 @@ async def load_docs(request):
 
 @action
 async def search_docs(request):
+    from db import check_rate_limit, get_client_ip
+    from pyxle.runtime import ActionError
+
+    # 60 searches per hour per IP. Legitimate users typing a single query
+    # rarely exceed 20 debounced requests; 60 leaves plenty of headroom while
+    # blunting enumeration / scraping attempts.
+    client_ip = get_client_ip(request)
+    if not check_rate_limit(
+        client_ip,
+        scope="search_docs",
+        max_attempts=60,
+        window_seconds=3600,
+    ):
+        raise ActionError("Too many searches — slow down a bit.", status_code=429)
+
     body = await request.json()
-    query = (body.get("query") or "").lower().strip()
+    raw_query = body.get("query")
+    if not isinstance(raw_query, str):
+        return {"results": []}
+    # Cap query length to prevent pathological substring scans across the
+    # whole manifest searchText per entry.
+    query = raw_query.lower().strip()[:200]
     if not query:
         return {"results": []}
 
@@ -86,6 +131,7 @@ function SearchModal({ onClose }) {
     const [results, setResults] = useState([]);
     const [selectedIdx, setSelectedIdx] = useState(0);
     const [searching, setSearching] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(null);
     const inputRef = useRef(null);
     const search = useAction('search_docs');
 
@@ -96,13 +142,18 @@ function SearchModal({ onClose }) {
         if (!query.trim()) {
             setResults([]);
             setSearching(false);
+            setErrorMsg(null);
             return;
         }
         setSearching(true);
+        setErrorMsg(null);
         const timeout = setTimeout(async () => {
             const res = await search({ query: query.trim() });
-            if (res.ok && res.results) {
-                setResults(res.results);
+            if (res.ok) {
+                setResults(res.results || []);
+            } else {
+                setResults([]);
+                setErrorMsg(res.error || 'Search is unavailable right now. Please try again.');
             }
             setSearching(false);
         }, 150);
@@ -179,7 +230,22 @@ function SearchModal({ onClose }) {
                         Searching...
                     </div>
                 )}
-                {query && results.length === 0 && !searching && (
+                {query && results.length === 0 && !searching && errorMsg && (
+                    <div className="px-4 py-6 flex items-start gap-3">
+                        <svg className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <div className="min-w-0">
+                            <p className={`text-sm font-medium ${theme === 'dark' ? 'text-amber-300' : 'text-amber-700'}`}>
+                                {errorMsg}
+                            </p>
+                            <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                                You can still browse the sidebar on the left.
+                            </p>
+                        </div>
+                    </div>
+                )}
+                {query && results.length === 0 && !searching && !errorMsg && (
                     <div className={`px-4 py-8 text-center text-sm ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>
                         No results for &ldquo;{query}&rdquo;
                     </div>
