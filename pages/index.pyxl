@@ -40,7 +40,6 @@ async def subscribe_newsletter(request):
     add_subscriber(email)
     return {"message": "You're on the list! We'll keep you posted."}
 
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from './layout.pyxl';
 import { useAction, Link, Head } from 'pyxle/client';
@@ -203,6 +202,8 @@ function MobileMenu() {
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Code</a>
                     <a href="#features" onClick={(e) => { scrollToSection(e, 'features'); setOpen(false); }}
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Features</a>
+                    <a href="#demos" onClick={(e) => { scrollToSection(e, 'demos'); setOpen(false); }}
+                       className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Demos</a>
                     <a href="#get-started" onClick={(e) => { scrollToSection(e, 'get-started'); setOpen(false); }}
                        className={`text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
                     <Link href="/playground" onClick={() => setOpen(false)}
@@ -262,6 +263,8 @@ function Nav({ version }) {
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Code</a>
                     <a href="#features" onClick={(e) => scrollToSection(e, 'features')}
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Features</a>
+                    <a href="#demos" onClick={(e) => scrollToSection(e, 'demos')}
+                       className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Demos</a>
                     <a href="#get-started" onClick={(e) => scrollToSection(e, 'get-started')}
                        className={`hidden sm:block text-sm transition ${theme === 'dark' ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>Get Started</a>
                     <Link href="/playground"
@@ -1265,6 +1268,144 @@ function UseCases() {
     );
 }
 
+/* ── demos ────────────────────────────────────────────────── */
+
+const DEMOS = [
+    {
+        name: "Flux",
+        tagline: "SaaS analytics dashboard",
+        desc: "MRR charts, customer CRUD, revenue forecast. Server-rendered from SQLite with aggregation in Python.",
+        href: "https://flux.pyxle.app",
+        preview: "chart",
+        accent: "from-indigo-500 to-purple-600",
+    },
+    {
+        name: "Chroma",
+        tagline: "Color palette generator",
+        desc: "Harmony algorithms and WCAG contrast analysis, powered by Python's colorsys standard library.",
+        href: "https://chroma.pyxle.app",
+        preview: "palette",
+        accent: "from-pink-500 to-orange-400",
+    },
+    {
+        name: "Glyph",
+        tagline: "Generative geometric art",
+        desc: "Spirographs, rose curves, and mandalas. Each point computed server-side with math.sin and math.cos.",
+        href: "https://glyph.pyxle.app",
+        preview: "spiro",
+        accent: "from-violet-500 to-cyan-400",
+    },
+];
+
+function DemoPreview({ kind, accent }) {
+    if (kind === "palette") {
+        return (
+            <div className="flex h-28 w-full">
+                {["#FF6B6B", "#FF8E72", "#FFA45B", "#FFD166", "#F4E285"].map((c, i) => (
+                    <div key={i} className="flex-1" style={{ backgroundColor: c }} />
+                ))}
+            </div>
+        );
+    }
+    if (kind === "chart") {
+        const heights = [42, 58, 66, 54, 78, 72, 90];
+        return (
+            <div className="flex h-28 w-full items-end gap-1 bg-[#111318] px-4 py-3">
+                {heights.map((h, i) => (
+                    <div
+                        key={i}
+                        className={`flex-1 rounded-t bg-gradient-to-t ${accent}`}
+                        style={{ height: `${h}%`, opacity: 0.6 + (i / heights.length) * 0.4 }}
+                    />
+                ))}
+            </div>
+        );
+    }
+    /* spiro */
+    const spiroPath = Array.from({ length: 720 }, (_, i) => {
+        const t = (i * Math.PI) / 40;
+        const R = 45, r = 13, d = 28;
+        const x = (R - r) * Math.cos(t) + d * Math.cos(((R - r) * t) / r);
+        const y = (R - r) * Math.sin(t) - d * Math.sin(((R - r) * t) / r);
+        return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    }).join(" ");
+    return (
+        <div className="h-28 w-full bg-[#08080c] flex items-center justify-center">
+            <svg viewBox="0 0 120 120" className="h-full w-auto py-1">
+                <defs>
+                    <linearGradient id="spiro-grad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#a78bfa" />
+                        <stop offset="100%" stopColor="#22d3ee" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(60,60)" fill="none" stroke="url(#spiro-grad)" strokeWidth="0.7">
+                    <path d={spiroPath} />
+                </g>
+            </svg>
+        </div>
+    );
+}
+
+function Demos() {
+    const { theme } = useTheme();
+    return (
+        <section id="demos" className="relative overflow-hidden px-6 py-24">
+            <GradientOrb className="h-[500px] w-[500px] top-0 right-0 bg-purple-600" />
+            <div className="relative z-10 mx-auto max-w-6xl">
+                <Reveal>
+                    <div className="text-center mb-14">
+                        <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">Live Demos</p>
+                        <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                            See Pyxle
+                            {' '}
+                            <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">in action</span>
+                        </h2>
+                        <p className={`mx-auto mt-4 max-w-2xl ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                            Three fully functional apps, each built with Pyxle. Click, interact, break things — they're yours to explore.
+                        </p>
+                    </div>
+                </Reveal>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                    {DEMOS.map((demo, i) => (
+                        <Reveal key={demo.name} delay={i * 100}>
+                            <a
+                                href={demo.href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className={`group flex h-full flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ${
+                                    theme === 'dark'
+                                        ? 'border-white/5 bg-white/[0.02] hover:border-white/10 hover:shadow-2xl hover:shadow-purple-500/10'
+                                        : 'border-zinc-200 bg-white hover:border-zinc-300 hover:shadow-xl'
+                                }`}
+                            >
+                                <DemoPreview kind={demo.preview} accent={demo.accent} />
+                                <div className="flex flex-1 flex-col p-6">
+                                    <div className="mb-2 flex items-baseline gap-2">
+                                        <h3 className="text-lg font-semibold">{demo.name}</h3>
+                                        <span className={`text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                                            {demo.tagline}
+                                        </span>
+                                    </div>
+                                    <p className={`flex-1 text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                                        {demo.desc}
+                                    </p>
+                                    <div className={`mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-400 transition-transform group-hover:translate-x-0.5`}>
+                                        Try it live
+                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </a>
+                        </Reveal>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 /* ── get started ──────────────────────────────────────────── */
 
 const INSTALL_STEPS = [
@@ -1501,6 +1642,7 @@ export default function Page({ data }) {
             <HowItWorks />
             <BuiltForAgents />
             <UseCases />
+            <Demos />
             <GetStarted />
             <Newsletter />
             <Footer />
