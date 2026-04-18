@@ -282,7 +282,7 @@ export function tokenizeBlock(code, lang) {
 export const HIGHLIGHT_CSS = `
 .sh-kw { color: #c084fc; }
 .sh-str { color: #6ee7b7; }
-.sh-cmt { color: #71717a; font-style: italic; }
+.sh-cmt { color: #a1a1aa; font-style: italic; }
 .sh-dec { color: #facc15; }
 .sh-fn { color: #60a5fa; }
 .sh-tag { color: #71717a; }
