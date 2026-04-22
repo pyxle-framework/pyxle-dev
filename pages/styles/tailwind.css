@@ -4,330 +4,86 @@
 
 @layer base {
     html {
-        scroll-behavior: smooth;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
     }
 
     body {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     }
 
-    code, pre {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
+    code, pre, kbd, samp {
+        font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     }
 
     ::selection {
         background: rgba(52, 211, 153, 0.3);
-        color: white;
-    }
-
-    html.light ::selection {
-        background: rgba(16, 185, 129, 0.3);
-        color: #18181b;
-    }
-
-    /* Light mode overrides */
-    html.light body {
-        background: #ffffff;
-        color: #18181b;
+        color: inherit;
     }
 }
 
 @layer utilities {
-    .text-balance {
-        text-wrap: balance;
+    .text-balance { text-wrap: balance; }
+    .text-pretty  { text-wrap: pretty; }
+
+    .gradient-text {
+        background-image: linear-gradient(135deg, #34d399 0%, #22d3ee 50%, #60a5fa 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* Single CSS entrance animation, gated by prefers-reduced-motion.
+       Used via the `.reveal` utility — elements fade+rise on first paint,
+       no IntersectionObserver required. */
+    @keyframes reveal-up {
+        from { opacity: 0; transform: translate3d(0, 16px, 0); }
+        to   { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    .reveal {
+        animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .reveal { animation: none; }
+    }
+
+    /* Subtle dotted grid background used behind the hero and in code chrome.
+       Pure CSS — no image, no request. Encoded once, tiled by the GPU. */
+    .grid-bg {
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0);
+        background-size: 24px 24px;
+    }
+    html.light .grid-bg {
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0);
+    }
+
+    /* Focus ring — visible on keyboard nav, hidden on mouse click. */
+    .focus-ring:focus-visible {
+        outline: 2px solid #34d399;
+        outline-offset: 2px;
     }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   HeroVisual — code editor + browser preview on the home page.
-   Defined here (rather than via dangerouslySetInnerHTML in JS) so
-   the rules are present during SSR and don't trigger React
-   hydration mismatches. Component lives at
-   pages/components/hero-visual.jsx.
-   ───────────────────────────────────────────────────────────── */
-
-.hv-stage {
-    perspective: 1600px;
-    perspective-origin: 50% 35%;
-}
-
-@keyframes hv-float-a {
-    0%, 100% { transform: translate3d(0, 0, 0); }
-    50%      { transform: translate3d(0, -10px, 0); }
-}
-@keyframes hv-float-b {
-    0%, 100% { transform: translate3d(0, 0, 0); }
-    50%      { transform: translate3d(0, -7px, 0); }
-}
-.hv-float-a { animation: hv-float-a 6.5s ease-in-out infinite; }
-.hv-float-b { animation: hv-float-b 7.5s ease-in-out infinite 1.2s; }
-
-/* Floats opt back in to pointer events so the cards can detect hover and
-   the hovered window can rise to the front. The aurora canvas behind
-   still receives mouse events outside the cards. */
-.hv-float-a, .hv-float-b {
-    pointer-events: auto;
-    transition: z-index 0s;
-}
-.hv-float-a:hover, .hv-float-b:hover {
-    z-index: 50;
-}
-
-.hv-card {
-    transform-style: preserve-3d;
-    will-change: transform, filter;
-    transition:
-        transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-        filter 0.4s ease;
-}
-.hv-card-code {
-    transform: rotateY(calc(9deg + var(--hv-tilt-x, 0deg)))
-               rotateX(calc(-2deg + var(--hv-tilt-y, 0deg)));
-}
-.hv-card-browser {
-    transform: rotateY(calc(-9deg + var(--hv-tilt-x, 0deg)))
-               rotateX(calc(-2deg + var(--hv-tilt-y, 0deg)));
-}
-
-/* On hover: bring the window forward in 3D space, flatten its tilt
-   toward the viewer, scale it up slightly, and add a coloured glow. */
-.hv-float-a:hover .hv-card-code {
-    transform: rotateY(calc(0deg + var(--hv-tilt-x, 0deg) * 0.3))
-               rotateX(calc(0deg + var(--hv-tilt-y, 0deg) * 0.3))
-               translateZ(48px)
-               scale(1.04);
-    filter:
-        brightness(1.08)
-        drop-shadow(0 30px 60px rgba(16, 185, 129, 0.40))
-        drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
-}
-.hv-float-b:hover .hv-card-browser {
-    transform: rotateY(calc(0deg + var(--hv-tilt-x, 0deg) * 0.3))
-               rotateX(calc(0deg + var(--hv-tilt-y, 0deg) * 0.3))
-               translateZ(48px)
-               scale(1.04);
-    filter:
-        brightness(1.05)
-        drop-shadow(0 30px 60px rgba(6, 182, 212, 0.40))
-        drop-shadow(0 12px 28px rgba(0, 0, 0, 0.45));
-}
-
-/* When one card is hovered, gently dim and push the other one back so
-   the focus is unmistakable. Uses :has() (modern browsers, gracefully
-   degrades to "no dim" elsewhere). */
-.hv-stage:has(.hv-float-a:hover) .hv-float-b .hv-card,
-.hv-stage:has(.hv-float-b:hover) .hv-float-a .hv-card {
-    filter: brightness(0.78) saturate(0.85);
-    opacity: 0.92;
-}
-
-/* Big animated glow under both windows. The dual-layer setup keeps a
-   sharp emerald core and a soft outer wash. */
-@keyframes hv-glow-shift {
-    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-    50%      { transform: translate3d(0, -6px, 0) scale(1.04); }
-}
-.hv-glow {
-    position: absolute;
-    inset: -14% -8% -10%;
-    z-index: 0;
-    pointer-events: none;
-    background:
-        radial-gradient(closest-side at 30% 60%,
-            rgba(16, 185, 129, 0.42),
-            transparent 70%),
-        radial-gradient(closest-side at 70% 50%,
-            rgba(6, 182, 212, 0.32),
-            transparent 70%),
-        radial-gradient(closest-side at 50% 50%,
-            rgba(59, 130, 246, 0.18),
-            transparent 75%);
-    filter: blur(80px);
-    animation: hv-glow-shift 9s ease-in-out infinite;
-}
-
-/* ── Clicker preview ─────────────────────────────────────────
-   Styled to look like a polished, "real-app" hero, but the DOM
-   structure faithfully matches the JSX shown in SAMPLE_CODE:
-       <div class="clicker">
-           <p>...</p>
-           <h1>...</h1>
-           <button>...</button>
-       </div>
-   ──────────────────────────────────────────────────────────── */
-.hv-clicker {
-    position: relative;
-    padding: 38px 28px 34px;
-    text-align: center;
-    overflow: hidden;
-    background:
-        radial-gradient(140% 90% at 50% 0%,
-            rgba(16, 185, 129, 0.10),
-            transparent 55%),
-        radial-gradient(140% 90% at 50% 100%,
-            rgba(59, 130, 246, 0.06),
-            transparent 60%),
-        linear-gradient(180deg, #ffffff 0%, #f6f8fc 100%);
-}
-.hv-clicker::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at center, rgba(15, 23, 42, 0.05) 1px, transparent 1.5px);
-    background-size: 18px 18px;
-    opacity: 0.55;
-    pointer-events: none;
-}
-
-/* Tag-line above the count */
-.hv-clicker p {
-    position: relative;
-    margin: 0 0 8px;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #94a3b8;
-}
-
-/* Big animated count — number stays fully visible the entire time;
-   the pop is a subtle scale, never an opacity fade, so the screenshot
-   can never catch a blank frame. */
-@keyframes hv-pulse-num {
-    0%   { transform: scale(0.97); }
-    55%  { transform: scale(1.035); }
-    100% { transform: scale(1); }
-}
-.hv-clicker h1 {
-    position: relative;
-    margin: 0 0 22px;
-    font-size: 56px;
-    line-height: 0.95;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    font-variant-numeric: tabular-nums;
-    background: linear-gradient(135deg,
-        #10b981 0%,
-        #06b6d4 35%,
-        #3b82f6 65%,
-        #8b5cf6 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    text-shadow: 0 8px 32px rgba(16, 185, 129, 0.18);
-    filter: drop-shadow(0 4px 18px rgba(6, 182, 212, 0.25));
-    animation: hv-pulse-num 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transform-origin: center;
-}
-
-/* The "Click me" CTA — large, glowing, irresistible */
-.hv-clicker button {
-    position: relative;
-    pointer-events: auto;
-    isolation: isolate;
-    appearance: none;
-    border: 0;
-    cursor: pointer;
-    padding: 13px 30px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.005em;
-    color: #ffffff;
-    background:
-        linear-gradient(135deg, #18181b 0%, #27272a 100%);
-    box-shadow:
-        0 14px 32px -10px rgba(16, 185, 129, 0.55),
-        0 2px 8px -2px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.25s ease,
-        filter 0.2s ease;
-}
-.hv-clicker button::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(135deg,
-        rgba(16, 185, 129, 0.35),
-        rgba(6, 182, 212, 0.20) 50%,
-        rgba(59, 130, 246, 0.30));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-.hv-clicker button::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, #10b981, #06b6d4 50%, #3b82f6);
-    filter: blur(10px);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -2;
-}
-.hv-clicker button:hover {
-    filter: brightness(1.08);
-    transform: translateY(-2px);
-    box-shadow:
-        0 20px 40px -12px rgba(16, 185, 129, 0.7),
-        0 6px 14px -4px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.16);
-}
-.hv-clicker button:hover::before { opacity: 1; }
-.hv-clicker button:hover::after  { opacity: 0.65; }
-.hv-clicker button:active {
-    transform: translateY(0) scale(0.97);
-    transition: transform 0.05s ease;
-}
-
-.hv-clicker-error {
-    display: block;
-    margin-top: 14px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #dc2626;
-    line-height: 1.4;
-    max-width: 260px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .hv-float-a, .hv-float-b { animation: none; }
-    .hv-card-code, .hv-card-browser { transform: none !important; }
-    .hv-card { transition: none; }
-    .hv-float-a:hover .hv-card-code,
-    .hv-float-b:hover .hv-card-browser {
-        transform: none !important;
-        filter: none !important;
-    }
-    .hv-glow { animation: none; }
-    .hv-clicker h1 { animation: none; }
-}
-@media (max-width: 640px) {
-    /* No 3D tilt, no floating, no hover-to-front gymnastics on mobile —
-       cards are stacked vertically and touch devices have no real hover. */
-    .hv-card-code, .hv-card-browser { transform: none !important; }
-    .hv-float-a, .hv-float-b { animation: none; }
-    .hv-float-a:hover .hv-card-code,
-    .hv-float-b:hover .hv-card-browser {
-        transform: none !important;
-        filter: none !important;
-    }
-    .hv-stage:has(.hv-float-a:hover) .hv-float-b .hv-card,
-    .hv-stage:has(.hv-float-b:hover) .hv-float-a .hv-card {
-        filter: none !important;
-        opacity: 1 !important;
-    }
-    /* Smaller, less aggressive shadow on the clicker so the stacked
-       layout doesn't feel cramped. */
-    .hv-clicker { padding: 28px 24px; }
-    .hv-clicker h1 { font-size: 48px; }
-}
+/* ── Syntax highlighting token colors ────────────────────────
+   Referenced by the pre-tokenized code blocks in index.pyxl and
+   the shared highlighter in pages/components/code-highlighter.jsx.
+   Kept in the global stylesheet so the tokens render correctly
+   during SSR without any inline <style> round-trip. */
+.sh-kw   { color: #c084fc; }
+.sh-str  { color: #6ee7b7; }
+.sh-cmt  { color: #a1a1aa; font-style: italic; }
+.sh-dec  { color: #facc15; }
+.sh-fn   { color: #60a5fa; }
+.sh-tag  { color: #71717a; }
+.sh-comp { color: #22d3ee; }
+.sh-elem { color: #f87171; }
+.sh-attr { color: #fde047; }
+.sh-brc  { color: #facc15; }
+.sh-prop { color: #22d3ee; }
+.sh-num  { color: #fb923c; }
+.sh-cmd  { color: #4ade80; }
+.sh-flg  { color: #22d3ee; }
+.sh-pl   { color: #d4d4d8; }

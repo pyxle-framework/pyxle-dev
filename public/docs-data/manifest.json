@@ -248,16 +248,15 @@
       "path": "getting-started/quick-start",
       "category": "Getting Started",
       "description": "Create a working Pyxle app in under 5 minutes.",
-      "searchText": "Quick Start Create a working Pyxle app in under 5 minutes. 1. Scaffold a new project This creates a directory with a complete starter project. 2. Install dependencies This runs both and . You can also run them separately: 3. Build Tailwind CSS In a separate terminal, start the Tailwind watcher: This compiles into and watches for changes. The dev server also autostarts Tailwind if it detects a config file, so this step is optional if you use with the flag (enabled by default). 4. Start the dev se",
+      "searchText": "Quick Start Create a working Pyxle app in under 5 minutes. 1. Scaffold a new project This creates a directory with a complete starter project. 2. Install dependencies This runs both and . You can also run them separately: 3. Start the dev server Open http://localhost:8000 in your browser. You should see the Pyxle starter page — a centered card showing the framework version, server time, and a link to edit . Tailwind compiles automatically because the scaffold ships with — PostCSS runs as part of",
       "headings": [
         "1. Scaffold a new project",
         "2. Install dependencies",
-        "3. Build Tailwind CSS",
-        "4. Start the dev server",
+        "3. Start the dev server",
         "What just happened?",
-        "5. Make a change",
-        "6. Check your routes",
-        "7. Validate your project",
+        "4. Make a change",
+        "5. Check your routes",
+        "6. Validate your project",
         "Next steps"
       ]
     },
@@ -535,7 +534,7 @@
       "path": "guides/deployment",
       "category": "Guides",
       "description": "Deploy a Pyxle application with `pyxle build` to compile assets and `pyxle serve` to run in production.",
-      "searchText": "Deployment Deploy a Pyxle application with to compile assets and to run in production. Build for production This: 1. Compiles all files into Python and JSX modules 2. Runs (which runs for Tailwind, then Vite bundling) 3. Outputs production artifacts to the directory Build options Serve in production This starts a production Starlette server without Vite (static assets are served directly): Serve options Flag Default Description Bind address Port number Directory with production artifacts Skip ru",
+      "searchText": "Deployment Deploy a Pyxle application with to compile assets and to run in production. Build for production This: 1. Compiles all files into Python and JSX modules 2. Runs — Vite bundles JS and processes CSS through PostCSS (Tailwind is compiled inpipeline when is present, which is the scaffold default) 3. Outputs production artifacts to the directory Build options Serve in production This starts a production Starlette server without Vite (static assets are served directly): Serve options Flag D",
       "headings": [
         "Build for production",
         "Build options",
@@ -724,6 +723,7 @@
         "<Link>",
         "Hooks",
         "useAction(actionName, options?)",
+        "usePathname()",
         "Functions",
         "navigate(path)",
         "prefetch(path)",
