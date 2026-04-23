@@ -347,6 +347,7 @@
         "Using the <Form> component",
         "Using the useAction hook",
         "Error handling in actions",
+        "Invalidating client caches after a mutation",
         "How actions are routed",
         "CSRF protection",
         "Next steps"
@@ -418,11 +419,12 @@
       "path": "guides/api-routes",
       "category": "Guides",
       "description": "Files under `pages/api/` are API endpoints. They are plain Python files (not `.pyxl`) that handle HTTP requests and return JSON or other responses.",
-      "searchText": "API Routes Files under are API endpoints. They are plain Python files (not ) that handle HTTP requests and return JSON or other responses. Basic API route Create : This responds to : HTTP methods Define functions named after HTTP methods: Supported methods: , , , , , . Requests to unsupported methods return . Using HTTPEndpoint classes For more structure, use Starlette's : Dynamic API routes Use the same bracket syntax as page routes: Reading request bodies Error responses Return appropriate HTT",
+      "searchText": "API Routes Files under are API endpoints. They are plain Python files (not ) that handle HTTP requests and return JSON or other responses. Basic API route Create : This responds to : HTTP methods Define functions named after HTTP methods: Supported methods: , , , , , . Requests to unsupported methods return . Using HTTPEndpoint classes For more structure, use Starlette's : WebSocket endpoints Since 0.3.0, an API module can export to register a WebSocket handler at the same path. The file can exp",
       "headings": [
         "Basic API route",
         "HTTP methods",
         "Using HTTPEndpoint classes",
+        "WebSocket endpoints",
         "Dynamic API routes",
         "Reading request bodies",
         "Error responses",
@@ -701,6 +703,7 @@
         "@action",
         "LoaderError",
         "ActionError",
+        "invalidate_routes(response, *urls)",
         "Document <head> elements",
         "<Head> component (recommended)",
         "HEAD variable (lower-level alternative)",
@@ -727,7 +730,9 @@
         "Functions",
         "navigate(path)",
         "prefetch(path)",
-        "refresh()"
+        "refresh()",
+        "invalidate(url?)",
+        "Navigation cache TTL"
       ]
     },
     {
@@ -1013,6 +1018,7 @@
         "Streaming",
         "Error handling",
         "Client-side navigation",
+        "SSR worker locale",
         "Performance tips"
       ]
     },
