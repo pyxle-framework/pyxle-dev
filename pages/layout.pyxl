@@ -10,30 +10,30 @@ export function useTheme() {
 export const slots = {};
 export const createSlots = () => slots;
 
+const THEME_BOOT = `(function(){try{var t=localStorage.getItem('pyxle-theme');if(t!=='light'&&t!=='dark')t='dark';var c=document.documentElement.classList;c.remove('light','dark');c.add(t);}catch(e){document.documentElement.classList.add('dark');}})();`;
+
+function readInitialTheme() {
+    if (typeof document === 'undefined') return 'dark';
+    return document.documentElement.classList.contains('light') ? 'light' : 'dark';
+}
+
 export default function RootLayout({ children }) {
-    const [theme, setTheme] = useState('dark');
+    const [theme, setTheme] = useState(readInitialTheme);
 
     useEffect(() => {
-        const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('pyxle-theme') : null;
-        if (stored === 'light' || stored === 'dark') setTheme(stored);
-    }, []);
-
-    useEffect(() => {
-        document.documentElement.classList.remove('light', 'dark');
-        document.documentElement.classList.add(theme);
-        // Use `overflow-x: clip` (NOT `hidden`) so that descendants with
-        // `position: sticky` keep working. `hidden` creates a new scroll
-        // container which breaks sticky; `clip` prevents horizontal
-        // overflow the same way visually without breaking sticky.
+        const c = document.documentElement.classList;
+        c.remove('light', 'dark');
+        c.add(theme);
         document.documentElement.style.overflowX = 'clip';
-        if (typeof localStorage !== 'undefined') localStorage.setItem('pyxle-theme', theme);
+        try { localStorage.setItem('pyxle-theme', theme); } catch(e) {}
     }, [theme]);
 
-    const toggle = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+    const toggle = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
 
     return (
         <ThemeContext.Provider value={{ theme, toggle }}>
-            <div className={`min-h-screen overflow-x-clip antialiased transition-colors duration-300 ${theme === 'dark' ? 'bg-[#0a0a0b] text-white' : 'bg-white text-zinc-900'}`}>
+            <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+            <div className="min-h-screen overflow-x-clip antialiased bg-white text-zinc-900 dark:bg-[#0a0a0b] dark:text-white transition-colors duration-300">
                 {children}
             </div>
         </ThemeContext.Provider>

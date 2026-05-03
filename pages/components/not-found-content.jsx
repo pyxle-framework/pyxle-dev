@@ -40,7 +40,7 @@ function GlitchText({ text }) {
             {text.split('').map((char, i) => (
                 <span
                     key={i}
-                    className={i === glitchIndex ? 'text-emerald-400 inline-block translate-y-[1px]' : ''}
+                    className={i === glitchIndex ? 'text-emerald-700 dark:text-emerald-400 inline-block translate-y-[1px]' : ''}
                 >
                     {i === glitchIndex ? String.fromCharCode(char.charCodeAt(0) + Math.floor(Math.random() * 3)) : char}
                 </span>
@@ -175,19 +175,13 @@ export default function NotFoundContent({ backHref = '/', backLabel = 'Back to h
                         Page not found
                     </h1>
 
-                    <p className={`text-base sm:text-lg mb-2 min-h-[2em] transition-all duration-300 ${
-                        theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'
-                    }`}>
+                    <p className={`text-base sm:text-lg mb-2 min-h-[2em] transition-all duration-300 text-zinc-600 dark:text-zinc-400`}>
                         {phrase}
                     </p>
 
                     <button
                         onClick={shufflePhrase}
-                        className={`text-xs mb-8 transition ${
-                            theme === 'dark'
-                                ? 'text-zinc-600 hover:text-zinc-400'
-                                : 'text-zinc-400 hover:text-zinc-600'
-                        }`}
+                        className={`text-xs mb-8 transition text-zinc-400 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-400`}
                     >
                         {counter > 4 ? "You really like clicking this, huh?" : "Click for another one"}
                     </button>
@@ -195,11 +189,7 @@ export default function NotFoundContent({ backHref = '/', backLabel = 'Back to h
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
                         <a
                             href={backHref}
-                            className={`group inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition ${
-                                theme === 'dark'
-                                    ? 'bg-white text-black hover:bg-zinc-200'
-                                    : 'bg-zinc-900 text-white hover:bg-zinc-700'
-                            }`}
+                            className={`group inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200`}
                         >
                             <svg className="h-4 w-4 transition group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
@@ -210,19 +200,13 @@ export default function NotFoundContent({ backHref = '/', backLabel = 'Back to h
                             href="https://github.com/pyxle-framework/pyxle"
                             target="_blank"
                             rel="noreferrer"
-                            className={`inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition ${
-                                theme === 'dark'
-                                    ? 'border-white/10 text-white hover:bg-white/5'
-                                    : 'border-zinc-300 text-zinc-900 hover:bg-zinc-50'
-                            }`}
+                            className={`inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition border-zinc-300 text-zinc-900 hover:bg-zinc-50 dark:border-white/10 dark:text-white dark:hover:bg-white/5`}
                         >
                             Report an issue
                         </a>
                     </div>
 
-                    <div className={`mt-16 font-mono text-xs space-y-1 ${
-                        theme === 'dark' ? 'text-zinc-700' : 'text-zinc-300'
-                    }`}>
+                    <div className={`mt-16 font-mono text-xs space-y-1 text-zinc-300 dark:text-zinc-500`}>
                         <p>GET {typeof window !== 'undefined' ? window.location.pathname : '/unknown'} HTTP/1.1</p>
                         <p>Status: 404 Not Found</p>
                         <p>X-Powered-By: Pyxle</p>
