@@ -50,6 +50,7 @@ const NAV_STRUCTURE = [
       { file: "guides/head-management.md", slug: "head-management" },
       { file: "guides/api-routes.md", slug: "api-routes" },
       { file: "guides/middleware.md", slug: "middleware" },
+      { file: "guides/plugins.md", slug: "plugins" },
       { file: "guides/environment-variables.md", slug: "environment-variables" },
       { file: "guides/error-handling.md", slug: "error-handling" },
       { file: "guides/client-components.md", slug: "client-components" },
@@ -68,6 +69,15 @@ const NAV_STRUCTURE = [
       { file: "reference/configuration.md", slug: "configuration" },
       { file: "reference/runtime-api.md", slug: "runtime-api" },
       { file: "reference/client-api.md", slug: "client-api" },
+      { file: "reference/plugins-api.md", slug: "plugins-api" },
+    ],
+  },
+  {
+    category: "Plugins",
+    slug: "plugins",
+    items: [
+      { file: "plugins/pyxle-db.md", slug: "pyxle-db" },
+      { file: "plugins/pyxle-auth.md", slug: "pyxle-auth" },
     ],
   },
   {

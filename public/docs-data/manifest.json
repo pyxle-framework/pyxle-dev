@@ -77,6 +77,11 @@
           "path": "guides/middleware"
         },
         {
+          "title": "Plugins",
+          "slug": "plugins",
+          "path": "guides/plugins"
+        },
+        {
           "title": "Environment Variables",
           "slug": "environment-variables",
           "path": "guides/environment-variables"
@@ -141,6 +146,27 @@
           "title": "Client API Reference",
           "slug": "client-api",
           "path": "reference/client-api"
+        },
+        {
+          "title": "Plugins API Reference",
+          "slug": "plugins-api",
+          "path": "reference/plugins-api"
+        }
+      ]
+    },
+    {
+      "category": "Plugins",
+      "slug": "plugins",
+      "items": [
+        {
+          "title": "pyxle-db",
+          "slug": "pyxle-db",
+          "path": "plugins/pyxle-db"
+        },
+        {
+          "title": "pyxle-auth",
+          "slug": "pyxle-auth",
+          "path": "plugins/pyxle-auth"
         }
       ]
     },
@@ -451,6 +477,45 @@
       ]
     },
     {
+      "title": "Plugins",
+      "path": "guides/plugins",
+      "category": "Guides",
+      "description": "Pyxle plugins are reusable pieces of functionality — database layers, auth systems, storage adapters — that a host app composes via `pyxle.config.json` rather than hand-wiring in its entry point. The ",
+      "searchText": "Plugins Pyxle plugins are reusable pieces of functionality — database layers, auth systems, storage adapters — that a host app composes via rather than handwiring in its entry point. The design is deliberately Djangoinspired: declare what you want, and the framework handles discovery, startup order, and lifecycle. Status (0.3.0). This guide covers the Phase A plugin surface: lifecycle hooks, named services, and middleware contribution. Page contribution (plugins shipping their own pages that get",
+      "headings": [
+        "TL;DR",
+        "Config schema",
+        "Authoring a plugin",
+        "Minimum viable plugin",
+        "Ship a typed import helper",
+        "Handling plugin settings",
+        "Declaring a dependency on another plugin",
+        "Environment variables",
+        "Testing a plugin",
+        "Packaging + publishing",
+        "Lifecycle",
+        "Consuming services from your app",
+        "Option 1: plugin-provided import helpers (preferred)",
+        "Option 2: generic plugin(name) shortcut",
+        "Option 3: long form via the request",
+        "When to use which",
+        "Middleware contribution",
+        "Stack position",
+        "When to use middleware vs. route hooks",
+        "Service naming conventions",
+        "Error handling",
+        "Troubleshooting",
+        "PluginResolutionError: Plugin 'pyxle-foo' could not import module 'pyxle_foo.plugin'",
+        "PluginResolutionError: attribute 'plugin' is a class but doesn't subclass PyxlePlugin",
+        "PluginServiceError: Service 'xxx' not registered. Available: ['...', '...']",
+        "Plugin startup raises PluginError: Plugin 'foo' on_startup failed: <original>",
+        "plugin(name) raises \"No active plugin context\" in a test",
+        "Changing pyxle.config.json::plugins doesn't take effect",
+        "Limitations (Phase A)",
+        "See also"
+      ]
+    },
+    {
       "title": "Environment Variables",
       "path": "guides/environment-variables",
       "category": "Guides",
@@ -687,6 +752,8 @@
         "styling",
         "CORS",
         "CSRF",
+        "Plugins",
+        "plugins",
         "Environment variable overrides",
         "Precedence",
         "Validation"
@@ -733,6 +800,84 @@
         "refresh()",
         "invalidate(url?)",
         "Navigation cache TTL"
+      ]
+    },
+    {
+      "title": "Plugins API Reference",
+      "path": "reference/plugins-api",
+      "category": "Reference",
+      "description": "Every public symbol in `pyxle.plugins`, including the access helpers introduced alongside the plugin system.",
+      "searchText": "Plugins API Reference Every public symbol in , including the access helpers introduced alongside the plugin system. Importing: For the userfacing guide, see Plugins. This page is the reference. Abstract base class plugins subclass to become discoverable. Nothing is abstract on the Python level — every hook has a noop default, so a minimal subclass is: Class attributes Attribute Type Default Description Userfacing plugin name. Used in error messages and for service namespacing. Informational. Pyx",
+      "headings": [
+        "PyxlePlugin",
+        "Class attributes",
+        "Instance attributes",
+        "Methods",
+        "PluginContext",
+        "Constructor",
+        "Methods",
+        "Properties",
+        "plugin(name, default=MISSING)",
+        "active_context() -> PluginContext",
+        "set_active_context(ctx: PluginContext | None) -> None",
+        "PluginSpec",
+        "Fields",
+        "Class methods",
+        "load_plugins(specs) -> tuple[PyxlePlugin, ...]",
+        "async run_startup(plugins, ctx) -> None",
+        "async run_shutdown(plugins, ctx) -> None",
+        "Errors",
+        "PluginError",
+        "PluginResolutionError",
+        "PluginServiceError",
+        "See also"
+      ]
+    },
+    {
+      "title": "pyxle-db",
+      "path": "plugins/pyxle-db",
+      "category": "Plugins",
+      "description": "SQLite-first database plugin for Pyxle. Ships connection pooling, PRAGMA hardening, and filesystem-driven migrations with checksum tracking.",
+      "searchText": "pyxledb SQLitefirst database plugin for Pyxle. Ships connection pooling, PRAGMA hardening, and filesystemdriven migrations with checksum tracking. Package: [](https://pypi.org/project/pyxledb/) Source: Requires: Install Then list it in : Paths are resolved relative to the project root. List before any plugin that depends on it (e.g. ). Using the database from your app returns the instance the plugin opened at startup. It's the same instance for every request — Pyxle's connection pool handles thr",
+      "headings": [
+        "Install",
+        "Using the database from your app",
+        "Writing data",
+        "Config reference",
+        "Registered services",
+        "Migrations",
+        "Operations & troubleshooting",
+        "MigrationChecksumMismatch",
+        "The DB file isn't being created",
+        "\"Database is locked\" during heavy writes",
+        "Direct instantiation (without the plugin system)",
+        "See also"
+      ]
+    },
+    {
+      "title": "pyxle-auth",
+      "path": "plugins/pyxle-auth",
+      "category": "Plugins",
+      "description": "Email + password session authentication for Pyxle apps. Argon2id password hashing, `HttpOnly`/`Secure` cookies with sliding expiration, per-identifier rate limits on sign-in and sign-up.",
+      "searchText": "pyxleauth Email + password session authentication for Pyxle apps. Argon2id password hashing, / cookies with sliding expiration, peridentifier rate limits on signin and signup. Package: [](https://pypi.org/project/pyxleauth/) Source: Requires: , [](pyxledb.md) as a peer plugin. Install Then list after in : Order matters: calls during startup, so must run first. Using the service returns the — the same instance for every request. It wraps the active database from with argon2 hashing and session li",
+      "headings": [
+        "Install",
+        "Using the service",
+        "Resolving the current user",
+        "Signing out",
+        "Config reference",
+        "Password policy",
+        "Sessions",
+        "Cookie",
+        "Rate limits",
+        "Other",
+        "Unknown keys are rejected",
+        "Registered services",
+        "Error types",
+        "Schema",
+        "Testing",
+        "Direct instantiation (without the plugin system)",
+        "See also"
       ]
     },
     {
@@ -1139,6 +1284,10 @@
       "title": "Middleware",
       "category": "Guides"
     },
+    "guides/plugins": {
+      "title": "Plugins",
+      "category": "Guides"
+    },
     "guides/environment-variables": {
       "title": "Environment Variables",
       "category": "Guides"
@@ -1186,6 +1335,18 @@
     "reference/client-api": {
       "title": "Client API Reference",
       "category": "Reference"
+    },
+    "reference/plugins-api": {
+      "title": "Plugins API Reference",
+      "category": "Reference"
+    },
+    "plugins/pyxle-db": {
+      "title": "pyxle-db",
+      "category": "Plugins"
+    },
+    "plugins/pyxle-auth": {
+      "title": "pyxle-auth",
+      "category": "Plugins"
     },
     "architecture/overview": {
       "title": "Overview — A request, end to end",
