@@ -942,7 +942,7 @@ function TextTransformSection() {
 const NAV_PAGES = [
     { href: '/', title: 'Home', desc: 'Landing page with hero, features, and benchmarks' },
     { href: '/benchmarks', title: 'Benchmarks', desc: 'Performance comparison against FastAPI, Django, and more' },
-    { href: '/docs', title: 'Documentation', desc: 'Full docs with search, code examples, and guides' },
+    { href: '/docs', title: 'Documentation', desc: 'Full docs with search, code examples, guides, and architecture' },
 ];
 
 function SPANavSection() {
